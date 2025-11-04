@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'TiendaTech2'">TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+<header>
+    <h1>TiendaTech2</h1>
+    <nav>
+        <a th:href="@{/}">Inicio</a>
+        <a th:href="@{/productos}">Productos</a>
+        <a th:href="@{/categorias}">Categorías</a>
+        <a th:href="@{/login}">Iniciar sesión</a>
+    </nav>
+</header>
+
+<main th:fragment="content">
+    <!-- Aquí se inyectará el contenido de las demás vistas -->
+</main>
+
+<footer>
+    <p>&copy; 2025 TiendaTech2 - Todos los derechos reservados.</p>
+</footer>
+</body>
+</html>

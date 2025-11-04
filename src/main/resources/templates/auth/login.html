@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h2>Iniciar Sesión</h2>
+
+        <!-- Mensaje si el usuario acaba de registrarse -->
+        <div th:if="${param.registrado}">
+            <p class="success">✅ Registro exitoso. Ahora puedes iniciar sesión.</p>
+        </div>
+
+        <!-- Mensaje si hubo error de login -->
+        <div th:if="${param.error}">
+            <p class="error">❌ Credenciales inválidas, inténtalo nuevamente.</p>
+        </div>
+
+        <!-- Mensaje si se cerró sesión -->
+        <div th:if="${param.logout}">
+            <p class="info">🔒 Has cerrado sesión correctamente.</p>
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username">Correo:</label>
+                <input type="text" id="username" name="username" placeholder="Tu correo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" placeholder="Tu contraseña" required>
+            </div>
+
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+
+        <p>¿No tienes una cuenta? <a th:href="@{/auth/registro}">Regístrate aquí</a></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/carrito}">Carrito <span id="carrito-count">0</span></a>
+            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
+            <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
+            <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Carrito de Compras (HU5)</h2>
+
+        <div th:if="${items != null && !items.isEmpty()}">
+            <table style="width: 100%; border-collapse: collapse; background-color: var(--card-bg); border-radius: 10px; overflow: hidden;">
+                <thead>
+                    <tr style="background-color: #0069d9; color: white;">
+                        <th style="padding: 1rem; text-align: left;">Producto</th>
+                        <th style="padding: 1rem; text-align: left;">Precio Unitario</th>
+                        <th style="padding: 1rem; text-align: left;">Cantidad</th>
+                        <th style="padding: 1rem; text-align: left;">Subtotal</th>
+                        <th style="padding: 1rem; text-align: left;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${items}">
+                        <td style="padding: 1rem;">
+                            <strong th:text="${item.producto.nombre}"></strong>
+                        </td>
+                        <td style="padding: 1rem;" th:text="'$' + ${#numbers.formatDecimal(item.precioUnitario, 1, 2)}"></td>
+                        <td style="padding: 1rem;">
+                            <input type="number" th:value="${item.cantidad}" min="1" th:max="${item.producto.stock}" 
+                                   th:id="'cantidad-' + ${item.id}" style="width: 60px; padding: 0.3rem;">
+                            <button th:onclick="'actualizarCantidad(' + ${item.id} + ')'" style="margin-left: 0.5rem;">Actualizar</button>
+                        </td>
+                        <td style="padding: 1rem;" th:id="'subtotal-' + ${item.id}" 
+                            th:text="'$' + ${#numbers.formatDecimal(item.precioUnitario * item.cantidad, 1, 2)}"></td>
+                        <td style="padding: 1rem;">
+                            <button th:onclick="'eliminarItem(' + ${item.id} + ')'" style="background-color: #dc3545; color: white; border: none; padding: 0.5rem; border-radius: 5px; cursor: pointer;">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Resumen de compra (HU5) -->
+            <div style="background-color: var(--card-bg); padding: 2rem; border-radius: 10px; margin-top: 2rem; max-width: 400px; margin-left: auto;">
+                <h3>Resumen de Compra</h3>
+                <p><strong>Subtotal:</strong> <span id="subtotal" th:text="'$' + ${#numbers.formatDecimal(subtotal, 1, 2)}"></span></p>
+                <p><strong>Impuestos (13%):</strong> <span id="impuestos" th:text="'$' + ${#numbers.formatDecimal(impuestos, 1, 2)}"></span></p>
+                <p style="font-size: 1.5rem; font-weight: bold; margin-top: 1rem;">
+                    <strong>Total:</strong> <span id="total" th:text="'$' + ${#numbers.formatDecimal(total, 1, 2)}"></span>
+                </p>
+
+                <!-- Métodos de pago (HU14) -->
+                <div style="margin-top: 2rem;">
+                    <h4>Método de Pago</h4>
+                    <form th:action="@{/pedidos/crear}" method="post">
+                        <select name="metodoPagoId" required style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;">
+                            <option value="">Selecciona un método de pago</option>
+                            <!-- Aquí se cargarían los métodos de pago disponibles -->
+                            <option value="1">Tarjeta de Crédito</option>
+                            <option value="2">Transferencia Bancaria</option>
+                            <option value="3">PayPal</option>
+                        </select>
+                        <button type="submit" style="width: 100%; padding: 1rem; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 1.1rem; cursor: pointer;">
+                            Realizar Pedido
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${items == null || items.isEmpty()}" style="text-align: center; padding: 3rem;">
+            <p>Tu carrito está vacío</p>
+            <a th:href="@{/productos}" class="btn">Ver Productos</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+    <script th:src="@{/js/carrito.js}"></script>
+    <script>
+        function actualizarCantidad(itemId) {
+            const cantidad = document.getElementById('cantidad-' + itemId).value;
+            fetch('/carrito/' + itemId + '/cantidad?cantidad=' + cantidad, {
+                method: 'PUT'
+            })
+            .then(() => location.reload());
+        }
+
+        function eliminarItem(itemId) {
+            if (confirm('¿Estás seguro de eliminar este producto del carrito?')) {
+                fetch('/carrito/' + itemId, {
+                    method: 'DELETE'
+                })
+                .then(() => location.reload());
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/carrito}">Carrito <span id="carrito-count">0</span></a>
+            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
+            <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
+            <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Historial de Pedidos (HU6)</h2>
+
+        <div th:if="${pedidos != null && !pedidos.isEmpty()}">
+            <div th:each="pedido : ${pedidos}" style="background-color: var(--card-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem; border: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3>Pedido #<span th:text="${pedido.id}"></span></h3>
+                        <p><strong>Fecha:</strong> <span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></span></p>
+                        <p><strong>Estado:</strong> 
+                            <span th:switch="${pedido.estado}">
+                                <span th:case="EN_PROCESO" style="color: #ffc107;">En Proceso</span>
+                                <span th:case="ENVIADO" style="color: #17a2b8;">Enviado</span>
+                                <span th:case="ENTREGADO" style="color: #28a745;">Entregado</span>
+                                <span th:case="CANCELADO" style="color: #dc3545;">Cancelado</span>
+                            </span>
+                        </p>
+                        <p><strong>Total:</strong> <span th:text="'$' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></span></p>
+                    </div>
+                    <div>
+                        <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="btn">Ver Detalles</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${pedidos == null || pedidos.isEmpty()}" style="text-align: center; padding: 3rem;">
+            <p>No tienes pedidos aún</p>
+            <a th:href="@{/productos}" class="btn">Explorar Productos</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>
+

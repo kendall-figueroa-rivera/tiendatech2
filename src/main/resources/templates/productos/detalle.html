@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${producto.nombre} + ' | TiendaTech2'">Producto | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/carrito}">Carrito <span id="carrito-count">0</span></a>
+            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
+            <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
+            <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">Iniciar Sesión</a>
+            <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 1200px; margin: 0 auto;">
+            <!-- Imagen del producto -->
+            <div>
+                <img th:src="${producto.imagenUrl != null ? producto.imagenUrl : '/images/default-product.png'}" 
+                     th:alt="${producto.nombre}" 
+                     style="width: 100%; border-radius: 10px;"
+                     onerror="this.src='/images/default-product.png'">
+            </div>
+
+            <!-- Información del producto -->
+            <div>
+                <h2 th:text="${producto.nombre}"></h2>
+                <p><strong>Marca:</strong> <span th:text="${producto.marca}"></span></p>
+                <p><strong>Categoría:</strong> <span th:text="${producto.categoria != null ? producto.categoria.nombre : 'Sin categoría'}"></span></p>
+                <p class="precio" th:if="${producto.oferta == null || !producto.oferta.activa}" 
+                   th:text="'$' + ${#numbers.formatDecimal(producto.precio, 1, 2)}" style="font-size: 2rem;"></p>
+                <div th:if="${producto.oferta != null && producto.oferta.activa}">
+                    <p style="text-decoration: line-through; color: #999;" th:text="'$' + ${#numbers.formatDecimal(producto.precio, 1, 2)}"></p>
+                    <p class="precio-descuento" th:text="'$' + ${#numbers.formatDecimal(producto.oferta.precioDescuento, 1, 2)}" style="font-size: 2rem;"></p>
+                    <p class="descuento" th:text="'-' + ${#numbers.formatDecimal(producto.oferta.porcentajeDescuento, 1, 2)} + '%'"></p>
+                </div>
+                <p><strong>Stock disponible:</strong> <span th:text="${producto.stock}"></span></p>
+                <p th:if="${producto.descripcion}" th:text="${producto.descripcion}"></p>
+
+                <div style="margin-top: 2rem;">
+                    <button class="btn-agregar-carrito" th:data-producto-id="${producto.id}" sec:authorize="isAuthenticated()">Agregar al Carrito</button>
+                    <button class="btn-favorito" th:data-producto-id="${producto.id}" sec:authorize="isAuthenticated()" 
+                            th:text="${esFavorito != null && esFavorito ? '❤️ Quitar de Favoritos' : '🤍 Agregar a Favoritos'}">🤍 Agregar a Favoritos</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comentarios (HU11) -->
+        <section style="margin-top: 3rem; max-width: 1200px; margin-left: auto; margin-right: auto;">
+            <h3>Comentarios</h3>
+            
+            <!-- Formulario para agregar comentario -->
+            <div sec:authorize="isAuthenticated()" style="background-color: var(--card-bg); padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
+                <h4>Deja un comentario</h4>
+                <form id="comentario-form">
+                    <textarea id="comentario-contenido" placeholder="Escribe tu comentario..." required style="width: 100%; min-height: 100px; padding: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);"></textarea>
+                    <button type="submit" style="margin-top: 1rem;">Publicar Comentario</button>
+                </form>
+            </div>
+
+            <!-- Lista de comentarios -->
+            <div th:if="${comentarios != null && !comentarios.isEmpty()}">
+                <div th:each="comentario : ${comentarios}" style="background-color: var(--card-bg); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 1px solid var(--border-color);">
+                    <p><strong th:text="${comentario.usuario.nombre}"></strong> 
+                       <span style="color: #666; font-size: 0.9rem;" th:text="${' - ' + #temporals.format(comentario.fechaComentario, 'dd/MM/yyyy HH:mm')}"></span></p>
+                    <p th:text="${comentario.contenido}"></p>
+                </div>
+            </div>
+            <p th:if="${comentarios == null || comentarios.isEmpty()}" style="text-align: center; padding: 2rem;">
+                No hay comentarios aún. ¡Sé el primero en comentar!
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+    <script th:src="@{/js/carrito.js}"></script>
+    <script>
+        // Agregar comentario (HU11)
+        document.getElementById('comentario-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const contenido = document.getElementById('comentario-contenido').value;
+            const productoId = [[${producto.id}]];
+            
+            fetch('/comentarios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `productoId=${productoId}&contenido=${encodeURIComponent(contenido)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al publicar comentario');
+            });
+        });
+    </script>
+</body>
+</html>
+

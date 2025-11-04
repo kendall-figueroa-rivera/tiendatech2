@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pedidos | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2 - Admin</h1>
+        <nav>
+            <a th:href="@{/admin}">Panel Admin</a>
+            <a th:href="@{/admin/usuarios}">Usuarios</a>
+            <a th:href="@{/admin/productos}">Productos</a>
+            <a th:href="@{/admin/categorias}">Categorías</a>
+            <a th:href="@{/admin/pedidos}">Pedidos</a>
+            <a th:href="@{/admin/ofertas}">Ofertas</a>
+            <a th:href="@{/logout}">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Gestión de Pedidos</h2>
+
+        <div th:if="${pedidos != null && !pedidos.isEmpty()}">
+            <table style="width: 100%; border-collapse: collapse; background-color: var(--card-bg); border-radius: 10px; overflow: hidden;">
+                <thead>
+                    <tr style="background-color: #0069d9; color: white;">
+                        <th style="padding: 1rem; text-align: left;">ID</th>
+                        <th style="padding: 1rem; text-align: left;">Usuario</th>
+                        <th style="padding: 1rem; text-align: left;">Fecha</th>
+                        <th style="padding: 1rem; text-align: left;">Total</th>
+                        <th style="padding: 1rem; text-align: left;">Estado</th>
+                        <th style="padding: 1rem; text-align: left;">Cambiar Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pedido : ${pedidos}">
+                        <td style="padding: 1rem;" th:text="${pedido.id}"></td>
+                        <td style="padding: 1rem;" th:text="${pedido.usuario.nombre}"></td>
+                        <td style="padding: 1rem;" th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td style="padding: 1rem;" th:text="'$' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></td>
+                        <td style="padding: 1rem;">
+                            <span th:switch="${pedido.estado}">
+                                <span th:case="EN_PROCESO" style="color: #ffc107;">En Proceso</span>
+                                <span th:case="ENVIADO" style="color: #17a2b8;">Enviado</span>
+                                <span th:case="ENTREGADO" style="color: #28a745;">Entregado</span>
+                                <span th:case="CANCELADO" style="color: #dc3545;">Cancelado</span>
+                            </span>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <form th:action="@{/admin/pedidos/{id}/estado(id=${pedido.id})}" method="post" style="display: inline;">
+                                <select name="estado" required style="padding: 0.3rem; margin-right: 0.5rem;">
+                                    <option value="EN_PROCESO">En Proceso</option>
+                                    <option value="ENVIADO">Enviado</option>
+                                    <option value="ENTREGADO">Entregado</option>
+                                    <option value="CANCELADO">Cancelado</option>
+                                </select>
+                                <button type="submit" style="padding: 0.3rem 0.5rem; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Actualizar</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>
+

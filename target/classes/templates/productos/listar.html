@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/carrito}">Carrito <span id="carrito-count">0</span></a>
+            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
+            <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
+            <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">Iniciar Sesión</a>
+            <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Catálogo de Productos</h2>
+
+        <!-- Búsqueda directa (HU13) -->
+        <section class="busqueda">
+            <form action="/productos" method="get">
+                <input type="text" name="busqueda" placeholder="Buscar productos..." th:value="${busqueda}" id="busqueda-input">
+                <button type="submit">Buscar</button>
+            </form>
+        </section>
+
+        <!-- Filtros (HU7) -->
+        <section class="filtros" style="background-color: var(--card-bg); padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+            <h3>Filtros</h3>
+            <form method="get" id="filtros-form">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <label for="categoria">Categoría:</label>
+                        <select name="categoria" id="categoria" onchange="document.getElementById('filtros-form').submit();">
+                            <option value="">Todas</option>
+                            <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}" th:selected="${categoria == cat.id}"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="marca">Marca:</label>
+                        <input type="text" name="marca" id="marca" placeholder="Filtrar por marca" th:value="${marca}" onchange="document.getElementById('filtros-form').submit();">
+                    </div>
+                    <div>
+                        <label for="minPrecio">Precio Mínimo:</label>
+                        <input type="number" name="minPrecio" id="minPrecio" placeholder="0" th:value="${minPrecio}" step="0.01">
+                    </div>
+                    <div>
+                        <label for="maxPrecio">Precio Máximo:</label>
+                        <input type="number" name="maxPrecio" id="maxPrecio" placeholder="10000" th:value="${maxPrecio}" step="0.01">
+                    </div>
+                </div>
+                <button type="submit" style="margin-top: 1rem;">Aplicar Filtros</button>
+            </form>
+        </section>
+
+        <!-- Lista de productos -->
+        <section class="productos-destacados">
+            <div class="productos-grid">
+                <div th:each="producto : ${productos}" class="producto-card">
+                    <img th:src="${producto.imagenUrl != null ? producto.imagenUrl : '/images/default-product.png'}" 
+                         th:alt="${producto.nombre}" 
+                         onerror="this.src='/images/default-product.png'">
+                    <h4 th:text="${producto.nombre}"></h4>
+                    <p><strong>Marca:</strong> <span th:text="${producto.marca}"></span></p>
+                    <p class="precio" th:text="'$' + ${#numbers.formatDecimal(producto.precio, 1, 2)}"></p>
+                    <p th:if="${producto.oferta != null && producto.oferta.activa}" style="color: #dc3545; font-weight: bold;">
+                        <span th:text="'Oferta: $' + ${#numbers.formatDecimal(producto.oferta.precioDescuento, 1, 2)}"></span>
+                        <span th:text="' (-' + ${#numbers.formatDecimal(producto.oferta.porcentajeDescuento, 1, 2)} + '%)'"></span>
+                    </p>
+                    <p><strong>Stock:</strong> <span th:text="${producto.stock}"></span></p>
+                    <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn">Ver Detalles</a>
+                    <button class="btn-agregar-carrito" th:data-producto-id="${producto.id}" sec:authorize="isAuthenticated()">Agregar al Carrito</button>
+                    <button class="btn-favorito" th:data-producto-id="${producto.id}" sec:authorize="isAuthenticated()" 
+                            th:text="${esFavorito != null && esFavorito ? '❤️' : '🤍'}">🤍</button>
+                </div>
+            </div>
+            <p th:if="${productos.isEmpty()}" style="text-align: center; padding: 2rem;">
+                No se encontraron productos con los filtros seleccionados.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/theme.js}"></script>
+    <script th:src="@{/js/carrito.js}"></script>
+</body>
+</html>
+

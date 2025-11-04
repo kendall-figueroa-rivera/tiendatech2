@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/carrito}">Carrito</a>
+            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/pedidos}">Mis Pedidos</a>
+            <a th:href="@{/usuario/perfil}">Mi Perfil</a>
+            <a th:href="@{/logout}">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Mi Perfil</h2>
+        
+        <!-- Mensajes -->
+        <div th:if="${mensaje}" class="success" style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+            <p th:text="${mensaje}"></p>
+        </div>
+        <div th:if="${error}" class="error" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+            <p th:text="${error}"></p>
+        </div>
+
+        <!-- Formulario de actualización (HU4) -->
+        <section class="info">
+            <h3>Actualizar Datos Personales</h3>
+            <form th:action="@{/usuario/perfil/actualizar}" th:object="${usuario}" method="post">
+                <div class="form-group">
+                    <label for="nombre">Nombre Completo:</label>
+                    <input type="text" id="nombre" th:field="*{nombre}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo">Correo Electrónico:</label>
+                    <input type="email" id="correo" th:field="*{correo}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" th:field="*{direccion}" placeholder="Tu dirección">
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono" th:field="*{telefono}" placeholder="Tu teléfono">
+                </div>
+
+                <h4>Cambiar Contraseña (opcional)</h4>
+                <div class="form-group">
+                    <label for="contrasenaActual">Contraseña Actual:</label>
+                    <input type="password" id="contrasenaActual" name="contrasenaActual" placeholder="Ingresa tu contraseña actual">
+                </div>
+
+                <div class="form-group">
+                    <label for="nuevaContrasena">Nueva Contraseña:</label>
+                    <input type="password" id="nuevaContrasena" name="nuevaContrasena" placeholder="Mínimo 6 caracteres">
+                </div>
+
+                <button type="submit">Actualizar Perfil</button>
+            </form>
+        </section>
+
+        <!-- Información del usuario -->
+        <section class="info" style="margin-top: 2rem;">
+            <h3>Información de la Cuenta</h3>
+            <p><strong>Rol:</strong> <span th:text="${usuario.rol.nombre}"></span></p>
+            <p><strong>Email Confirmado:</strong> <span th:text="${usuario.emailConfirmado ? 'Sí' : 'No'}"></span></p>
+            <p th:if="${usuario.fechaRegistro}"><strong>Fecha de Registro:</strong> <span th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}"></span></p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>

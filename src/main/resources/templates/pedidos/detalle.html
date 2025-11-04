@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Pedido | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/carrito}">Carrito <span id="carrito-count">0</span></a>
+            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
+            <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
+            <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Detalle del Pedido #<span th:text="${pedido.id}"></span></h2>
+
+        <!-- Seguimiento de Pedido (HU10) -->
+        <section style="background-color: var(--card-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+            <h3>Seguimiento del Pedido</h3>
+            <div style="display: flex; justify-content: space-around; margin-top: 1rem;">
+                <div th:class="${pedido.estado == T(tiendatech2.model.Pedido.EstadoPedido).EN_PROCESO ? 'estado-activo' : 'estado-inactivo'}" 
+                     style="text-align: center; padding: 1rem; border-radius: 5px; flex: 1; margin: 0 0.5rem;">
+                    <div style="font-size: 2rem;">📦</div>
+                    <p>En Proceso</p>
+                </div>
+                <div th:class="${pedido.estado == T(tiendatech2.model.Pedido.EstadoPedido).ENVIADO ? 'estado-activo' : 'estado-inactivo'}" 
+                     style="text-align: center; padding: 1rem; border-radius: 5px; flex: 1; margin: 0 0.5rem;">
+                    <div style="font-size: 2rem;">🚚</div>
+                    <p>Enviado</p>
+                </div>
+                <div th:class="${pedido.estado == T(tiendatech2.model.Pedido.EstadoPedido).ENTREGADO ? 'estado-activo' : 'estado-inactivo'}" 
+                     style="text-align: center; padding: 1rem; border-radius: 5px; flex: 1; margin: 0 0.5rem;">
+                    <div style="font-size: 2rem;">✅</div>
+                    <p>Entregado</p>
+                </div>
+            </div>
+            <p style="margin-top: 1rem;"><strong>Estado Actual:</strong> 
+                <span th:switch="${pedido.estado}">
+                    <span th:case="EN_PROCESO" style="color: #ffc107; font-weight: bold;">En Proceso</span>
+                    <span th:case="ENVIADO" style="color: #17a2b8; font-weight: bold;">Enviado</span>
+                    <span th:case="ENTREGADO" style="color: #28a745; font-weight: bold;">Entregado</span>
+                    <span th:case="CANCELADO" style="color: #dc3545; font-weight: bold;">Cancelado</span>
+                </span>
+            </p>
+        </section>
+
+        <!-- Información del pedido -->
+        <section style="background-color: var(--card-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+            <h3>Información del Pedido</h3>
+            <p><strong>Fecha:</strong> <span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p><strong>Dirección de Entrega:</strong> <span th:text="${pedido.direccionEntrega}"></span></p>
+            <p th:if="${pedido.metodoPago != null}"><strong>Método de Pago:</strong> <span th:text="${pedido.metodoPago.nombre}"></span></p>
+        </section>
+
+        <!-- Items del pedido -->
+        <section style="background-color: var(--card-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+            <h3>Productos</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #0069d9; color: white;">
+                        <th style="padding: 1rem; text-align: left;">Producto</th>
+                        <th style="padding: 1rem; text-align: left;">Cantidad</th>
+                        <th style="padding: 1rem; text-align: left;">Precio Unitario</th>
+                        <th style="padding: 1rem; text-align: left;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${pedido.items}">
+                        <td style="padding: 1rem;" th:text="${item.producto.nombre}"></td>
+                        <td style="padding: 1rem;" th:text="${item.cantidad}"></td>
+                        <td style="padding: 1rem;" th:text="'$' + ${#numbers.formatDecimal(item.precioUnitario, 1, 2)}"></td>
+                        <td style="padding: 1rem;" th:text="'$' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Resumen (HU6) -->
+        <section style="background-color: var(--card-bg); padding: 1.5rem; border-radius: 10px; max-width: 400px; margin-left: auto;">
+            <h3>Resumen</h3>
+            <p><strong>Subtotal:</strong> <span th:text="'$' + ${#numbers.formatDecimal(pedido.subtotal, 1, 2)}"></span></p>
+            <p><strong>Impuestos (13%):</strong> <span th:text="'$' + ${#numbers.formatDecimal(pedido.impuestos, 1, 2)}"></span></p>
+            <p style="font-size: 1.5rem; font-weight: bold; margin-top: 1rem;">
+                <strong>Total:</strong> <span th:text="'$' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></span>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+    <style>
+        .estado-activo {
+            background-color: #28a745;
+            color: white;
+        }
+        .estado-inactivo {
+            background-color: #e9ecef;
+            color: #666;
+        }
+    </style>
+</body>
+</html>
+

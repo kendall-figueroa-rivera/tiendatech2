@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2 - Admin</h1>
+        <nav>
+            <a th:href="@{/admin}">Panel Admin</a>
+            <a th:href="@{/admin/usuarios}">Usuarios</a>
+            <a th:href="@{/admin/productos}">Productos</a>
+            <a th:href="@{/admin/categorias}">Categorías</a>
+            <a th:href="@{/admin/pedidos}">Pedidos</a>
+            <a th:href="@{/admin/ofertas}">Ofertas</a>
+            <a th:href="@{/logout}">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Gestión de Usuarios y Roles (HU2)</h2>
+
+        <div th:if="${usuarios != null && !usuarios.isEmpty()}">
+            <table style="width: 100%; border-collapse: collapse; background-color: var(--card-bg); border-radius: 10px; overflow: hidden;">
+                <thead>
+                    <tr style="background-color: #0069d9; color: white;">
+                        <th style="padding: 1rem; text-align: left;">ID</th>
+                        <th style="padding: 1rem; text-align: left;">Nombre</th>
+                        <th style="padding: 1rem; text-align: left;">Correo</th>
+                        <th style="padding: 1rem; text-align: left;">Rol Actual</th>
+                        <th style="padding: 1rem; text-align: left;">Asignar Rol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="usuario : ${usuarios}">
+                        <td style="padding: 1rem;" th:text="${usuario.id}"></td>
+                        <td style="padding: 1rem;" th:text="${usuario.nombre}"></td>
+                        <td style="padding: 1rem;" th:text="${usuario.correo}"></td>
+                        <td style="padding: 1rem;">
+                            <span th:if="${usuario.rol != null}" th:text="${usuario.rol.nombre}"></span>
+                            <span th:unless="${usuario.rol != null}">Sin rol</span>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <form th:action="@{/admin/usuarios/{id}/rol(id=${usuario.id})}" method="post" style="display: inline;">
+                                <select name="rolNombre" required style="padding: 0.3rem; margin-right: 0.5rem;">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="ADMIN">ADMIN</option>
+                                    <option value="VENDEDOR">VENDEDOR</option>
+                                    <option value="USER">USER</option>
+                                </select>
+                                <button type="submit" style="padding: 0.3rem 1rem; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Asignar</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${usuarios == null || usuarios.isEmpty()}" style="text-align: center; padding: 3rem;">
+            <p>No hay usuarios registrados</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>
+

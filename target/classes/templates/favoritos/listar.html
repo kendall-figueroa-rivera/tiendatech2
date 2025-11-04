@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Favoritos | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/carrito}">Carrito <span id="carrito-count">0</span></a>
+            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
+            <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
+            <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Mis Productos Favoritos (HU8)</h2>
+
+        <div th:if="${favoritos != null && !favoritos.isEmpty()}">
+            <div class="productos-grid">
+                <div th:each="favorito : ${favoritos}" class="producto-card">
+                    <img th:src="${favorito.producto.imagenUrl != null ? favorito.producto.imagenUrl : '/images/default-product.png'}" 
+                         th:alt="${favorito.producto.nombre}" 
+                         onerror="this.src='/images/default-product.png'">
+                    <h4 th:text="${favorito.producto.nombre}"></h4>
+                    <p><strong>Marca:</strong> <span th:text="${favorito.producto.marca}"></span></p>
+                    <p class="precio" th:text="'$' + ${#numbers.formatDecimal(favorito.producto.precio, 1, 2)}"></p>
+                    <p th:if="${favorito.producto.oferta != null && favorito.producto.oferta.activa}" style="color: #dc3545; font-weight: bold;">
+                        <span th:text="'Oferta: $' + ${#numbers.formatDecimal(favorito.producto.oferta.precioDescuento, 1, 2)}"></span>
+                    </p>
+                    <a th:href="@{/productos/{id}(id=${favorito.producto.id})}" class="btn">Ver Detalles</a>
+                    <button class="btn-agregar-carrito" th:data-producto-id="${favorito.producto.id}">Agregar al Carrito</button>
+                    <button th:onclick="'eliminarFavorito(' + ${favorito.id} + ')'" style="background-color: #dc3545; color: white; border: none; padding: 0.5rem; border-radius: 5px; cursor: pointer; margin-top: 0.5rem;">
+                        ❌ Quitar de Favoritos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${favoritos == null || favoritos.isEmpty()}" style="text-align: center; padding: 3rem;">
+            <p>No tienes productos favoritos aún</p>
+            <a th:href="@{/productos}" class="btn">Explorar Productos</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+    <script th:src="@{/js/carrito.js}"></script>
+    <script>
+        function eliminarFavorito(favoritoId) {
+            if (confirm('¿Estás seguro de quitar este producto de favoritos?')) {
+                fetch('/favoritos/' + favoritoId, {
+                    method: 'DELETE'
+                })
+                .then(() => location.reload());
+            }
+        }
+    </script>
+</body>
+</html>
+

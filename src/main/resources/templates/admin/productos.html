@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2 - Admin</h1>
+        <nav>
+            <a th:href="@{/admin}">Panel Admin</a>
+            <a th:href="@{/admin/usuarios}">Usuarios</a>
+            <a th:href="@{/admin/productos}">Productos</a>
+            <a th:href="@{/admin/categorias}">Categorías</a>
+            <a th:href="@{/admin/pedidos}">Pedidos</a>
+            <a th:href="@{/admin/ofertas}">Ofertas</a>
+            <a th:href="@{/logout}">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Gestión de Productos</h2>
+
+        <div style="margin-bottom: 2rem;">
+            <a th:href="@{/admin/productos/nuevo}" class="btn">Nuevo Producto</a>
+        </div>
+
+        <div th:if="${productos != null && !productos.isEmpty()}">
+            <table style="width: 100%; border-collapse: collapse; background-color: var(--card-bg); border-radius: 10px; overflow: hidden;">
+                <thead>
+                    <tr style="background-color: #0069d9; color: white;">
+                        <th style="padding: 1rem; text-align: left;">ID</th>
+                        <th style="padding: 1rem; text-align: left;">Nombre</th>
+                        <th style="padding: 1rem; text-align: left;">Marca</th>
+                        <th style="padding: 1rem; text-align: left;">Precio</th>
+                        <th style="padding: 1rem; text-align: left;">Stock</th>
+                        <th style="padding: 1rem; text-align: left;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="producto : ${productos}">
+                        <td style="padding: 1rem;" th:text="${producto.id}"></td>
+                        <td style="padding: 1rem;" th:text="${producto.nombre}"></td>
+                        <td style="padding: 1rem;" th:text="${producto.marca}"></td>
+                        <td style="padding: 1rem;" th:text="'$' + ${#numbers.formatDecimal(producto.precio, 1, 2)}"></td>
+                        <td style="padding: 1rem;">
+                            <span th:if="${producto.stock <= producto.stockMinimo}" style="color: #dc3545; font-weight: bold;" th:text="${producto.stock}"></span>
+                            <span th:unless="${producto.stock <= producto.stockMinimo}" th:text="${producto.stock}"></span>
+                            <form th:action="@{/admin/productos/{id}/stock(id=${producto.id})}" method="post" style="display: inline; margin-left: 0.5rem;">
+                                <input type="number" name="stock" th:value="${producto.stock}" min="0" style="width: 60px; padding: 0.3rem;">
+                                <button type="submit" style="padding: 0.3rem 0.5rem; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Actualizar</button>
+                            </form>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn" style="padding: 0.3rem 0.5rem; font-size: 0.9rem;">Ver</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>
+

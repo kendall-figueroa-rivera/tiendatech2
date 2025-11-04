@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Categorías | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2 - Admin</h1>
+        <nav>
+            <a th:href="@{/admin}">Panel Admin</a>
+            <a th:href="@{/admin/usuarios}">Usuarios</a>
+            <a th:href="@{/admin/productos}">Productos</a>
+            <a th:href="@{/admin/categorias}">Categorías</a>
+            <a th:href="@{/admin/pedidos}">Pedidos</a>
+            <a th:href="@{/admin/ofertas}">Ofertas</a>
+            <a th:href="@{/logout}">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido">
+        <h2>Gestión de Categorías (HU18)</h2>
+
+        <!-- Formulario para crear nueva categoría -->
+        <section style="background-color: var(--card-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+            <h3>Crear Nueva Categoría</h3>
+            <form th:action="@{/admin/categorias}" method="post">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Nombre de la categoría">
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción:</label>
+                    <textarea id="descripcion" name="descripcion" placeholder="Descripción de la categoría" style="width: 100%; min-height: 100px; padding: 0.5rem; border-radius: 5px;"></textarea>
+                </div>
+                <button type="submit">Crear Categoría</button>
+            </form>
+        </section>
+
+        <!-- Lista de categorías -->
+        <section>
+            <h3>Categorías Existentes</h3>
+            <div th:if="${categorias != null && !categorias.isEmpty()}">
+                <table style="width: 100%; border-collapse: collapse; background-color: var(--card-bg); border-radius: 10px; overflow: hidden;">
+                    <thead>
+                        <tr style="background-color: #0069d9; color: white;">
+                            <th style="padding: 1rem; text-align: left;">ID</th>
+                            <th style="padding: 1rem; text-align: left;">Nombre</th>
+                            <th style="padding: 1rem; text-align: left;">Descripción</th>
+                            <th style="padding: 1rem; text-align: left;">Estado</th>
+                            <th style="padding: 1rem; text-align: left;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="categoria : ${categorias}">
+                            <td style="padding: 1rem;" th:text="${categoria.id}"></td>
+                            <td style="padding: 1rem;" th:text="${categoria.nombre}"></td>
+                            <td style="padding: 1rem;" th:text="${categoria.descripcion}"></td>
+                            <td style="padding: 1rem;">
+                                <span th:if="${categoria.activa}" style="color: #28a745;">Activa</span>
+                                <span th:unless="${categoria.activa}" style="color: #dc3545;">Inactiva</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <form th:action="@{/admin/categorias/{id}/eliminar(id=${categoria.id})}" method="post" style="display: inline;">
+                                    <button type="submit" style="padding: 0.3rem 0.5rem; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>
+
