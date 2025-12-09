@@ -61,6 +61,7 @@ tiendatech2\repository\CarritoRepository.class
 tiendatech2\controller\AuthController.class
 tiendatech2\model\Producto.class
 tiendatech2\service\impl\PedidoServiceImpl.class
+tiendatech2\config\DataInitializer.class
 tiendatech2\controller\ComentarioController.class
 tiendatech2\model\Pedido$EstadoPedido.class
 tiendatech2\Tiendatech2Application.class
