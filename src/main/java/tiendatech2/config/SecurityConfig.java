@@ -1,8 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package tiendatech2.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +22,6 @@ public class SecurityConfig {
         http
             .userDetailsService(userDetailsService)
             .authorizeHttpRequests(auth -> auth
-                // PERMITIR TODAS LAS RUTAS SIN AUTENTICACIÓN (SOLO PARA PRUEBAS)
                 .anyRequest().permitAll()
             )
             .formLogin(form -> form
