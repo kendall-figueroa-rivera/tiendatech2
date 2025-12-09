@@ -40,33 +40,95 @@ public class Producto {
     private Boolean activo = true;
  
     // Getters y setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
  
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(Long id) {
+        this.id = id;
+    }
  
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getNombre() {
+        return nombre;
+    }
  
-    public BigDecimal getPrecio() { return precio; }
-    public void setPrecio(BigDecimal precio) { this.precio = precio; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
  
-    public String getMarca() { return marca; }
-    public void setMarca(String marca) { this.marca = marca; }
+    public String getDescripcion() {
+        return descripcion;
+    }
  
-    public Integer getStock() { return stock; }
-    public void setStock(Integer stock) { this.stock = stock; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
  
-    public Integer getStockMinimo() { return stockMinimo; }
-    public void setStockMinimo(Integer stockMinimo) { this.stockMinimo = stockMinimo; }
+    public BigDecimal getPrecio() {
+        return precio;
+    }
  
-    public String getImagenUrl() { return imagenUrl; }
-    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
+    }
  
-    public Categoria getCategoria() { return categoria; }
-    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+    public String getMarca() {
+        return marca;
+    }
  
-    public Boolean getActivo() { return activo; }
-    public void setActivo(Boolean activo) { this.activo = activo; }
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+ 
+    public Integer getStock() {
+        return stock;
+    }
+ 
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+ 
+    public Integer getStockMinimo() {
+        return stockMinimo;
+    }
+ 
+    public void setStockMinimo(Integer stockMinimo) {
+        this.stockMinimo = stockMinimo;
+    }
+ 
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+ 
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
+    }
+ 
+    public Categoria getCategoria() {
+        return categoria;
+    }
+ 
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
+ 
+    public Boolean getActivo() {
+        return activo;
+    }
+ 
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+ 
+    @OneToOne(mappedBy = "producto", cascade = CascadeType.ALL)
+    private Oferta oferta;
+ 
+    public Oferta getOferta() {
+        return oferta;
+    }
+ 
+    public void setOferta(Oferta oferta) {
+        this.oferta = oferta;
+    }
+ 
 }
