@@ -77,17 +77,17 @@ public class AuthController {
             return "auth/registro";
         }
 
-        // Buscar o crear el rol CLIENTE
-        Rol rolCliente = rolService.buscarPorNombre("CLIENTE");
-        if (rolCliente == null) {
-            rolCliente = new Rol();
-            rolCliente.setNombre("CLIENTE");
-            rolCliente.setDescripcion("Cliente de la tienda");
-            rolService.guardar(rolCliente);
+        // Buscar o crear el rol USER
+        Rol rolUser = rolService.buscarPorNombre("USER");
+        if (rolUser == null) {
+            rolUser = new Rol();
+            rolUser.setNombre("USER");
+            rolUser.setDescripcion("Rol básico de usuario");
+            rolService.guardar(rolUser);
         }
 
         // Asignar el rol y guardar
-        usuario.setRol(rolCliente);
+        usuario.setRol(rolUser);
         usuario.setEmailConfirmado(false);
         Usuario usuarioGuardado = usuarioService.guardar(usuario);
 

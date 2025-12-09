@@ -1,81 +1,85 @@
 package tiendatech2.service.impl;
- 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tiendatech2.model.Producto;
 import tiendatech2.repository.ProductoRepository;
 import tiendatech2.service.ProductoService;
- 
 import java.math.BigDecimal;
 import java.util.List;
- 
+
 @Service
 public class ProductoServiceImpl implements ProductoService {
- 
+
     @Autowired
-    private ProductoRepository repo;
- 
+    private ProductoRepository productoRepository;
+
     @Override
     public Producto guardar(Producto producto) {
-        return repo.save(producto);
+        return productoRepository.save(producto);
     }
- 
+
     @Override
     public Producto buscarPorId(Long id) {
-        return repo.findById(id).orElse(null);
+        return productoRepository.findById(id).orElse(null);
     }
- 
+
     @Override
     public List<Producto> listarTodos() {
-        return repo.findAll();
+        return productoRepository.findAll();
     }
- 
+
     @Override
     public List<Producto> listarActivos() {
-        return repo.findByActivoTrue();
+        return productoRepository.findByActivoTrue();
     }
- 
+
     @Override
     public List<Producto> buscarPorNombre(String nombre) {
-        return repo.findByNombreContainingIgnoreCase(nombre);
+        return productoRepository.findByNombreContainingIgnoreCase(nombre);
     }
- 
+
     @Override
     public List<Producto> buscarPorMarca(String marca) {
-        return repo.findByMarcaContainingIgnoreCase(marca);
+        return productoRepository.findByMarcaContainingIgnoreCase(marca);
     }
- 
+
     @Override
     public List<Producto> buscarPorCategoria(Long categoriaId) {
-        return repo.findByCategoriaId(categoriaId);
+        return productoRepository.findByCategoriaId(categoriaId);
     }
- 
+
     @Override
-    public List<Producto> buscarPorPrecio(BigDecimal min, BigDecimal max) {
-        return repo.findByPrecioBetween(min, max);
+    public List<Producto> buscarPorPrecio(BigDecimal minPrecio, BigDecimal maxPrecio) {
+        return productoRepository.findByPrecioBetween(minPrecio, maxPrecio);
     }
- 
+
     @Override
     public List<Producto> buscarProductos(String busqueda) {
-        return repo.buscarProductos(busqueda);
+        return productoRepository.buscarProductos(busqueda);
     }
- 
+
     @Override
     public List<Producto> findProductosConStockBajo() {
-        return repo.findProductosConStockBajo();
+        return productoRepository.findProductosConStockBajo();
     }
- 
+
     @Override
-    public void actualizarStock(Long id, Integer cantidad) {
-        Producto producto = buscarPorId(id);
+    public void actualizarStock(Long productoId, Integer cantidad) {
+        Producto producto = productoRepository.findById(productoId).orElse(null);
         if (producto != null) {
-            producto.setStock(producto.getStock() - cantidad);
-            repo.save(producto);
+            producto.setStock(cantidad);
+            productoRepository.save(producto);
         }
     }
- 
+
     @Override
     public void eliminar(Long id) {
-        repo.deleteById(id);
+        Producto producto = productoRepository.findById(id).orElse(null);
+        if (producto != null) {
+            producto.setActivo(false);
+            productoRepository.save(producto);
+        }
     }
 }
+

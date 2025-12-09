@@ -1,3 +1,8 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
 package tiendatech2.model;
 import jakarta.persistence.*;
 
@@ -20,7 +25,7 @@ public class Usuario {
 
     @ManyToOne
     @JoinColumn(name = "rol_id")
-    private Rol rol;
+    private Rol rol; // ✅ Cada usuario tiene un solo rol
 
     @Column(name = "fecha_registro", insertable = false, updatable = false)
     private java.sql.Timestamp fechaRegistro;
@@ -52,6 +57,7 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private java.util.List<tiendatech2.model.Chat> chats;
 
+    // ===== Getters y Setters =====
     public Long getId() {
         return id;
     }
