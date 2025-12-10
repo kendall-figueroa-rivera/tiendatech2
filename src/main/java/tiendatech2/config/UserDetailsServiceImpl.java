@@ -29,7 +29,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         if (usuario.getRol() != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre()));
+            // El rol ya viene con el prefijo ROLE_ desde la base de datos
+            String roleName = usuario.getRol().getNombre();
+            if (!roleName.startsWith("ROLE_")) {
+                roleName = "ROLE_" + roleName;
+            }
+            authorities.add(new SimpleGrantedAuthority(roleName));
         } else {
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         }

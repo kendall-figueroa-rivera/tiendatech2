@@ -78,10 +78,10 @@ public class AuthController {
         }
 
         // Buscar o crear el rol USER
-        Rol rolUser = rolService.buscarPorNombre("USER");
+        Rol rolUser = rolService.buscarPorNombre("ROLE_USER");
         if (rolUser == null) {
             rolUser = new Rol();
-            rolUser.setNombre("USER");
+            rolUser.setNombre("ROLE_USER");
             rolUser.setDescripcion("Rol básico de usuario");
             rolService.guardar(rolUser);
         }
