@@ -60,6 +60,76 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    public List<Producto> buscarConFiltros(String busqueda, Long categoria, String marca, BigDecimal minPrecio, BigDecimal maxPrecio) {
+        List<Producto> productos;
+        
+        if (busqueda != null && !busqueda.isEmpty()) {
+            productos = productoRepository.buscarProductos(busqueda);
+        } else {
+            productos = productoRepository.findByActivoTrue();
+        }
+        
+        // Aplicar filtros adicionales
+        if (categoria != null) {
+            productos = productos.stream()
+                .filter(p -> p.getCategoria() != null && p.getCategoria().getId().equals(categoria))
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        if (marca != null && !marca.isEmpty()) {
+            productos = productos.stream()
+                .filter(p -> p.getMarca().toLowerCase().contains(marca.toLowerCase()))
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        if (minPrecio != null) {
+            productos = productos.stream()
+                .filter(p -> p.getPrecio().compareTo(minPrecio) >= 0)
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        if (maxPrecio != null) {
+            productos = productos.stream()
+                .filter(p -> p.getPrecio().compareTo(maxPrecio) <= 0)
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        return productos;
+    }
+
+    @Override
+    public List<Producto> ordenarProductos(List<Producto> productos, String ordenarPor, String direccion) {
+        java.util.Comparator<Producto> comparator;
+        
+        switch (ordenarPor.toLowerCase()) {
+            case "precio":
+                comparator = java.util.Comparator.comparing(Producto::getPrecio);
+                break;
+            case "nombre":
+            default:
+                comparator = java.util.Comparator.comparing(Producto::getNombre);
+                break;
+        }
+        
+        if ("desc".equalsIgnoreCase(direccion)) {
+            comparator = comparator.reversed();
+        }
+        
+        return productos.stream()
+            .sorted(comparator)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public List<String> obtenerMarcasUnicas() {
+        return productoRepository.findByActivoTrue().stream()
+            .map(Producto::getMarca)
+            .distinct()
+            .sorted()
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
     public List<Producto> findProductosConStockBajo() {
         return productoRepository.findProductosConStockBajo();
     }

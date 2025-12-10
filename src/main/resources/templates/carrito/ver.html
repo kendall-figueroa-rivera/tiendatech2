@@ -75,14 +75,20 @@
                     <form id="form-pago" th:action="@{/pedidos/crear}" method="post">
                         <select id="metodo-pago-select" name="metodoPagoId" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; border: 2px solid var(--border-color); font-size: 1rem;">
                             <option value="">Selecciona un método de pago</option>
-                            <option value="1">💳 Tarjeta de Crédito</option>
-                            <option value="2">🏦 Transferencia Bancaria</option>
-                            <option value="3">💙 PayPal</option>
+                            <option th:each="metodo : ${metodosPago}" 
+                                    th:value="${metodo.id}" 
+                                    th:text="${metodo.nombre}">
+                            </option>
                         </select>
                         <button type="button" onclick="procesarPago()" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s;">
                             💰 Proceder al Pago
                         </button>
                     </form>
+                </div>
+                
+                <!-- Mostrar errores si existen -->
+                <div th:if="${param.error}" style="margin-top: 1rem; padding: 1rem; background-color: #fee; border: 1px solid #fcc; border-radius: 8px; color: #c33;">
+                    <strong>⚠️ Error:</strong> <span th:text="${param.error}"></span>
                 </div>
             </div>
         </div>

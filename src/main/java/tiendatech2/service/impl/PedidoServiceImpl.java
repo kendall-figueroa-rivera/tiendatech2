@@ -64,6 +64,23 @@ public class PedidoServiceImpl implements PedidoService {
         List<Carrito> itemsCarrito = carritoRepository.findCarritoPorUsuario(usuarioId);
         if (itemsCarrito.isEmpty()) return null;
 
+        // Validar stock antes de crear el pedido
+        List<String> erroresStock = new ArrayList<>();
+        for (Carrito item : itemsCarrito) {
+            Producto producto = productoRepository.findById(item.getProducto().getId()).orElse(null);
+            if (producto == null) {
+                erroresStock.add("El producto " + item.getProducto().getNombre() + " ya no existe");
+                continue;
+            }
+            if (producto.getStock() < item.getCantidad()) {
+                erroresStock.add("El producto " + producto.getNombre() + " solo tiene " + producto.getStock() + " unidades disponibles (solicitadas: " + item.getCantidad() + ")");
+            }
+        }
+
+        if (!erroresStock.isEmpty()) {
+            throw new RuntimeException("Error de stock: " + String.join(", ", erroresStock));
+        }
+
         Pedido pedido = new Pedido();
         pedido.setUsuario(usuario);
         pedido.setEstado(Pedido.EstadoPedido.EN_PROCESO);
@@ -72,9 +89,16 @@ public class PedidoServiceImpl implements PedidoService {
         List<ItemPedido> itemsPedido = new ArrayList<>();
         BigDecimal subtotal = BigDecimal.ZERO;
         for (Carrito item : itemsCarrito) {
+            Producto producto = productoRepository.findById(item.getProducto().getId()).orElse(null);
+            if (producto == null) continue;
+
+            // Actualizar stock
+            producto.setStock(producto.getStock() - item.getCantidad());
+            productoRepository.save(producto);
+
             ItemPedido itemPedido = new ItemPedido();
             itemPedido.setPedido(pedido);
-            itemPedido.setProducto(item.getProducto());
+            itemPedido.setProducto(producto);
             itemPedido.setCantidad(item.getCantidad());
             itemPedido.setPrecioUnitario(item.getPrecioUnitario());
             itemPedido.setSubtotal(item.getPrecioUnitario().multiply(new BigDecimal(item.getCantidad())));

@@ -65,7 +65,7 @@ public class PedidoController {
     }
 
     @PostMapping("/crear")
-    public String crearPedido(@RequestParam Long metodoPagoId, Authentication authentication) {
+    public String crearPedido(@RequestParam Long metodoPagoId, Authentication authentication, Model model) {
         if (authentication == null) {
             return "redirect:/auth/login";
         }
@@ -75,13 +75,46 @@ public class PedidoController {
             return "redirect:/auth/login";
         }
 
-        Pedido pedido = pedidoService.crearPedidoDesdeCarrito(usuario.getId());
-        if (pedido != null && metodoPagoId != null) {
-            pedido.setMetodoPago(metodoPagoService.buscarPorId(metodoPagoId));
-            pedidoService.guardar(pedido);
+        try {
+            Pedido pedido = pedidoService.crearPedidoDesdeCarrito(usuario.getId());
+            if (pedido == null) {
+                model.addAttribute("error", "El carrito está vacío");
+                return "redirect:/carrito?error=carrito_vacio";
+            }
+
+            if (metodoPagoId != null) {
+                pedido.setMetodoPago(metodoPagoService.buscarPorId(metodoPagoId));
+                pedidoService.guardar(pedido);
+            }
+
+            return "redirect:/pedidos/confirmacion/" + pedido.getId();
+        } catch (RuntimeException e) {
+            // Error de stock u otro error
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/carrito?error=" + java.net.URLEncoder.encode(e.getMessage(), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al procesar el pedido: " + e.getMessage());
+            return "redirect:/carrito?error=error_generico";
+        }
+    }
+
+    @GetMapping("/confirmacion/{id}")
+    public String confirmacionPago(@PathVariable Long id, Authentication authentication, Model model) {
+        Pedido pedido = pedidoService.buscarPorId(id);
+        if (pedido == null) {
+            return "redirect:/pedidos";
         }
 
-        return "redirect:/pedidos/" + pedido.getId();
+        if (authentication != null) {
+            Usuario usuario = usuarioService.buscarPorCorreo(authentication.getName());
+            if (usuario != null && !pedido.getUsuario().getId().equals(usuario.getId()) && 
+                !usuario.getRol().getNombre().equals("ROLE_ADMIN")) {
+                return "redirect:/pedidos";
+            }
+        }
+
+        model.addAttribute("pedido", pedido);
+        return "pedidos/confirmacion";
     }
 }
 

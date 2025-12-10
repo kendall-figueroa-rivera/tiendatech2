@@ -11,6 +11,7 @@ import tiendatech2.model.Carrito;
 import tiendatech2.model.Usuario;
 import tiendatech2.service.CarritoService;
 import tiendatech2.service.UsuarioService;
+import tiendatech2.service.MetodoPagoService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,6 +25,9 @@ public class CarritoController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private MetodoPagoService metodoPagoService;
 
     @PostMapping("/agregar")
     @ResponseBody
@@ -59,6 +63,7 @@ public class CarritoController {
             model.addAttribute("subtotal", BigDecimal.ZERO);
             model.addAttribute("impuestos", BigDecimal.ZERO);
             model.addAttribute("total", BigDecimal.ZERO);
+            model.addAttribute("metodosPago", java.util.Collections.emptyList());
             return "carrito/ver";
         }
 
@@ -68,6 +73,7 @@ public class CarritoController {
             model.addAttribute("subtotal", BigDecimal.ZERO);
             model.addAttribute("impuestos", BigDecimal.ZERO);
             model.addAttribute("total", BigDecimal.ZERO);
+            model.addAttribute("metodosPago", java.util.Collections.emptyList());
             return "carrito/ver";
         }
 
@@ -82,6 +88,9 @@ public class CarritoController {
         model.addAttribute("subtotal", subtotal);
         model.addAttribute("impuestos", impuestos);
         model.addAttribute("total", total);
+        
+        // Cargar métodos de pago activos desde BD
+        model.addAttribute("metodosPago", metodoPagoService.listarActivos());
 
         return "carrito/ver";
     }

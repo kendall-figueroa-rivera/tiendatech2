@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Pago | TiendaTech2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="navbar">
+        <h1>🛒 TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/carrito}">Carrito</a>
+            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
+            <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
+            <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main class="contenido" style="max-width: 800px; margin: 2rem auto; text-align: center;">
+        <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 3rem; border-radius: 16px; margin-bottom: 2rem;">
+            <div style="font-size: 5rem; margin-bottom: 1rem;">✅</div>
+            <h1 style="margin: 0; font-size: 2.5rem;">¡Pago Exitoso!</h1>
+            <p style="font-size: 1.2rem; margin-top: 1rem;">Tu pedido ha sido procesado correctamente</p>
+        </div>
+
+        <div style="background-color: var(--card-bg); padding: 2rem; border-radius: 10px; margin-bottom: 2rem; text-align: left;">
+            <h2>Detalles del Pedido</h2>
+            <p><strong>Número de Pedido:</strong> <span style="font-size: 1.5rem; color: #10b981; font-weight: bold;" th:text="'#' + ${pedido.id}"></span></p>
+            <p><strong>Fecha:</strong> <span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p><strong>Método de Pago:</strong> <span th:text="${pedido.metodoPago != null ? pedido.metodoPago.nombre : 'No especificado'}"></span></p>
+            <p><strong>Total Pagado:</strong> <span style="font-size: 1.3rem; font-weight: bold; color: #10b981;" th:text="'$' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></span></p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="btn" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                📋 Ver Detalle del Pedido
+            </a>
+            <a th:href="@{/pedidos/{id}/factura(id=${pedido.id})}" class="btn" style="padding: 1rem 2rem; font-size: 1.1rem; background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                📄 Descargar Factura PDF
+            </a>
+            <a th:href="@{/productos}" class="btn" style="padding: 1rem 2rem; font-size: 1.1rem; background: linear-gradient(135deg, #6b7280, #4b5563);">
+                🛍️ Seguir Comprando
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
+    </footer>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>
+

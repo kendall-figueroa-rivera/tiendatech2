@@ -40,22 +40,18 @@ public class ProductoController {
             @RequestParam(required = false) String marca,
             @RequestParam(required = false) BigDecimal minPrecio,
             @RequestParam(required = false) BigDecimal maxPrecio,
+            @RequestParam(required = false, defaultValue = "nombre") String ordenarPor,
+            @RequestParam(required = false, defaultValue = "asc") String direccion,
             Authentication authentication,
             Model model) {
         
         List<Producto> productos;
         
-        if (busqueda != null && !busqueda.isEmpty()) {
-            productos = productoService.buscarProductos(busqueda);
-        } else if (categoria != null) {
-            productos = productoService.buscarPorCategoria(categoria);
-        } else if (marca != null && !marca.isEmpty()) {
-            productos = productoService.buscarPorMarca(marca);
-        } else if (minPrecio != null && maxPrecio != null) {
-            productos = productoService.buscarPorPrecio(minPrecio, maxPrecio);
-        } else {
-            productos = productoService.listarActivos();
-        }
+        // Búsqueda combinada con filtros
+        productos = productoService.buscarConFiltros(busqueda, categoria, marca, minPrecio, maxPrecio);
+        
+        // Ordenamiento
+        productos = productoService.ordenarProductos(productos, ordenarPor, direccion);
 
         model.addAttribute("productos", productos);
         model.addAttribute("categorias", categoriaService.listarActivas());
@@ -65,6 +61,12 @@ public class ProductoController {
         model.addAttribute("marca", marca);
         model.addAttribute("minPrecio", minPrecio);
         model.addAttribute("maxPrecio", maxPrecio);
+        model.addAttribute("ordenarPor", ordenarPor);
+        model.addAttribute("direccion", direccion);
+        
+        // Obtener marcas únicas para el filtro
+        List<String> marcas = productoService.obtenerMarcasUnicas();
+        model.addAttribute("marcas", marcas);
         
         if (authentication != null) {
             Usuario usuario = usuarioService.buscarPorCorreo(authentication.getName());
