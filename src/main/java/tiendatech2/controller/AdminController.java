@@ -69,6 +69,29 @@ public class AdminController {
         return "redirect:/admin/usuarios";
     }
 
+    @PostMapping("/usuarios/{id}/eliminar")
+    public String eliminarUsuario(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
+        // Verificar que no se está eliminando a sí mismo
+        Usuario usuarioActual = usuarioService.buscarPorCorreo(authentication.getName());
+        if (usuarioActual != null && usuarioActual.getId().equals(id)) {
+            redirectAttributes.addFlashAttribute("error", "No puedes eliminar tu propia cuenta");
+            return "redirect:/admin/usuarios";
+        }
+
+        Usuario usuario = usuarioService.buscarPorId(id);
+        if (usuario != null) {
+            try {
+                usuarioService.eliminar(id);
+                redirectAttributes.addFlashAttribute("mensaje", "Usuario eliminado exitosamente");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "No se pudo eliminar el usuario. Puede tener datos relacionados.");
+            }
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Usuario no encontrado");
+        }
+        return "redirect:/admin/usuarios";
+    }
+
     @GetMapping("/productos")
     public String gestionProductos(Model model) {
         model.addAttribute("productos", productoService.listarTodos());

@@ -1,17 +1,31 @@
-// Carrito de Compras Mejorado
+// Carrito de Compras Mejorado con soporte por usuario
 (function() {
-    // Cargar carrito desde sessionStorage
+    // Obtener ID de usuario único (mismo que favoritos)
+    function obtenerUsuarioId() {
+        let userId = localStorage.getItem('tiendatech_user_id');
+        if (!userId) {
+            userId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('tiendatech_user_id', userId);
+        }
+        return userId;
+    }
+
+    // Cargar carrito desde localStorage por usuario
     function cargarCarritoDesdeStorage() {
-        const carritoStorage = sessionStorage.getItem('carrito');
+        const userId = obtenerUsuarioId();
+        const key = 'carrito_' + userId;
+        const carritoStorage = localStorage.getItem(key);
         if (carritoStorage) {
             return JSON.parse(carritoStorage);
         }
         return [];
     }
 
-    // Guardar carrito en sessionStorage
+    // Guardar carrito en localStorage por usuario
     function guardarCarritoEnStorage(carrito) {
-        sessionStorage.setItem('carrito', JSON.stringify(carrito));
+        const userId = obtenerUsuarioId();
+        const key = 'carrito_' + userId;
+        localStorage.setItem(key, JSON.stringify(carrito));
     }
 
     // Actualizar contador del carrito

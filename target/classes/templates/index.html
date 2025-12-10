@@ -16,7 +16,7 @@
             <a th:href="@{/}">Inicio</a>
             <a th:href="@{/productos}">Productos</a>
             <a th:href="@{/carrito}" id="carrito-link">Carrito <span id="carrito-count">0</span></a>
-            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/favoritos}">Favoritos <span id="favoritos-count" style="display: none;">0</span></a>
             <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
             <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
             <a th:href="@{/admin}" class="admin-button" sec:authorize="hasRole('ADMIN')">⚙️ Admin Panel</a>

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios | TiendaTech2</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="navbar">
@@ -16,6 +19,7 @@
             <a th:href="@{/admin/categorias}">Categorías</a>
             <a th:href="@{/admin/pedidos}">Pedidos</a>
             <a th:href="@{/admin/ofertas}">Ofertas</a>
+            <a th:href="@{/}">Volver a Tienda</a>
             <a th:href="@{/logout}">Cerrar sesión</a>
             <button id="theme-toggle" class="theme-toggle">🌙</button>
         </nav>
@@ -24,35 +28,57 @@
     <main class="contenido">
         <h2>Gestión de Usuarios y Roles (HU2)</h2>
 
+        <!-- Mensajes -->
+        <div th:if="${mensaje}" class="success" style="margin-bottom: 1rem;">
+            ✅ <span th:text="${mensaje}"></span>
+        </div>
+        <div th:if="${error}" class="error" style="margin-bottom: 1rem;">
+            ❌ <span th:text="${error}"></span>
+        </div>
+
         <div th:if="${usuarios != null && !usuarios.isEmpty()}">
             <table style="width: 100%; border-collapse: collapse; background-color: var(--card-bg); border-radius: 10px; overflow: hidden;">
                 <thead>
-                    <tr style="background-color: #0069d9; color: white;">
+                    <tr style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
                         <th style="padding: 1rem; text-align: left;">ID</th>
                         <th style="padding: 1rem; text-align: left;">Nombre</th>
                         <th style="padding: 1rem; text-align: left;">Correo</th>
                         <th style="padding: 1rem; text-align: left;">Rol Actual</th>
                         <th style="padding: 1rem; text-align: left;">Asignar Rol</th>
+                        <th style="padding: 1rem; text-align: left;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="usuario : ${usuarios}">
+                    <tr th:each="usuario : ${usuarios}" style="border-bottom: 1px solid var(--border-color);">
                         <td style="padding: 1rem;" th:text="${usuario.id}"></td>
-                        <td style="padding: 1rem;" th:text="${usuario.nombre}"></td>
+                        <td style="padding: 1rem; font-weight: 600;" th:text="${usuario.nombre}"></td>
                         <td style="padding: 1rem;" th:text="${usuario.correo}"></td>
                         <td style="padding: 1rem;">
-                            <span th:if="${usuario.rol != null}" th:text="${usuario.rol.nombre}"></span>
-                            <span th:unless="${usuario.rol != null}">Sin rol</span>
+                            <span th:if="${usuario.rol != null}"
+                                  th:text="${usuario.rol.nombre}"
+                                  th:style="${usuario.rol.nombre == 'ROLE_ADMIN' ? 'background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;' :
+                                             usuario.rol.nombre == 'ROLE_VENDEDOR' ? 'background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;' :
+                                             'background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;'}">
+                            </span>
+                            <span th:unless="${usuario.rol != null}" style="color: #999; font-style: italic;">Sin rol</span>
                         </td>
                         <td style="padding: 1rem;">
-                            <form th:action="@{/admin/usuarios/{id}/rol(id=${usuario.id})}" method="post" style="display: inline;">
-                                <select name="rolNombre" required style="padding: 0.3rem; margin-right: 0.5rem;">
+                            <form th:action="@{/admin/usuarios/{id}/rol(id=${usuario.id})}" method="post" style="display: flex; gap: 0.5rem; align-items: center;">
+                                <select name="rolNombre" required style="padding: 0.5rem; border-radius: 6px; border: 2px solid var(--border-color); font-size: 0.9rem;">
                                     <option value="">Seleccionar...</option>
-                                    <option value="ADMIN">ADMIN</option>
-                                    <option value="VENDEDOR">VENDEDOR</option>
-                                    <option value="USER">USER</option>
+                                    <option value="ROLE_ADMIN">ADMIN</option>
+                                    <option value="ROLE_VENDEDOR">VENDEDOR</option>
+                                    <option value="ROLE_USER">USER</option>
                                 </select>
-                                <button type="submit" style="padding: 0.3rem 1rem; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Asignar</button>
+                                <button type="submit" style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;">Asignar</button>
+                            </form>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <form th:action="@{/admin/usuarios/{id}/eliminar(id=${usuario.id})}" method="post" style="display: inline;"
+                                  onsubmit="return confirm('⚠️ ¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');">
+                                <button type="submit" style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                                    🗑️ Eliminar
+                                </button>
                             </form>
                         </td>
                     </tr>

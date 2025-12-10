@@ -87,4 +87,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     public Usuario buscarPorTokenConfirmacion(String token) {
         return usuarioRepository.findByTokenConfirmacion(token);
     }
+
+    @Override
+    @Transactional
+    public void eliminar(Long id) {
+        usuarioRepository.deleteById(id);
+    }
 }

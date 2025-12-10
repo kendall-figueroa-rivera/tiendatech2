@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrito de Compras | TiendaTech2</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="navbar">
@@ -13,9 +16,11 @@
             <a th:href="@{/}">Inicio</a>
             <a th:href="@{/productos}">Productos</a>
             <a th:href="@{/carrito}">Carrito <span id="carrito-count">0</span></a>
-            <a th:href="@{/favoritos}">Favoritos</a>
+            <a th:href="@{/favoritos}">Favoritos <span id="favoritos-count" style="display: none;">0</span></a>
             <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
             <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
+            <a th:href="@{/admin}" class="admin-button" sec:authorize="hasRole('ADMIN')">⚙️ Admin Panel</a>
+            <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">Iniciar Sesión</a>
             <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
             <button id="theme-toggle" class="theme-toggle">🌙</button>
         </nav>
@@ -67,16 +72,15 @@
                 <!-- Métodos de pago (HU14) -->
                 <div style="margin-top: 2rem;">
                     <h4>Método de Pago</h4>
-                    <form th:action="@{/pedidos/crear}" method="post">
-                        <select name="metodoPagoId" required style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;">
+                    <form id="form-pago" th:action="@{/pedidos/crear}" method="post">
+                        <select id="metodo-pago-select" name="metodoPagoId" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; border: 2px solid var(--border-color); font-size: 1rem;">
                             <option value="">Selecciona un método de pago</option>
-                            <!-- Aquí se cargarían los métodos de pago disponibles -->
-                            <option value="1">Tarjeta de Crédito</option>
-                            <option value="2">Transferencia Bancaria</option>
-                            <option value="3">PayPal</option>
+                            <option value="1">💳 Tarjeta de Crédito</option>
+                            <option value="2">🏦 Transferencia Bancaria</option>
+                            <option value="3">💙 PayPal</option>
                         </select>
-                        <button type="submit" style="width: 100%; padding: 1rem; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 1.1rem; cursor: pointer;">
-                            Realizar Pedido
+                        <button type="button" onclick="procesarPago()" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                            💰 Proceder al Pago
                         </button>
                     </form>
                 </div>
@@ -89,12 +93,40 @@
         </div>
     </main>
 
+    <!-- Modal de PayPal (Ficticio) -->
+    <div id="paypal-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 3rem; border-radius: 16px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); animation: slideIn 0.3s ease-out;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">💙</div>
+                <h2 style="margin: 0; color: #0070ba; font-family: 'Poppins', sans-serif;">PayPal</h2>
+                <p style="color: #666; margin-top: 0.5rem;">Inicio de sesión seguro</p>
+            </div>
+
+            <div style="margin: 2rem 0;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">📧 Email o Teléfono</label>
+                    <input id="paypal-email" type="text" placeholder="correo@ejemplo.com" style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">🔒 Contraseña</label>
+                    <input id="paypal-password" type="password" placeholder="••••••••" style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="cerrarModalPayPal()" style="flex: 1; padding: 0.75rem; background: #f0f0f0; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancelar</button>
+                <button onclick="confirmarPagoPayPal()" style="flex: 2; padding: 0.75rem; background: linear-gradient(135deg, #0070ba, #005ea6); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Pagar ahora</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2025 TiendaTech2. Todos los derechos reservados.</p>
     </footer>
 
     <script th:src="@{/js/theme.js}"></script>
     <script th:src="@{/js/carrito.js}"></script>
+    <script th:src="@{/js/favoritos.js}"></script>
     <script>
         function actualizarCantidad(itemId) {
             const cantidad = document.getElementById('cantidad-' + itemId).value;
@@ -112,7 +144,93 @@
                 .then(() => location.reload());
             }
         }
+
+        function procesarPago() {
+            const metodoPago = document.getElementById('metodo-pago-select').value;
+
+            if (!metodoPago) {
+                alert('⚠️ Por favor selecciona un método de pago');
+                return;
+            }
+
+            if (metodoPago === '3') {
+                // Mostrar modal de PayPal
+                document.getElementById('paypal-modal').style.display = 'flex';
+            } else {
+                // Para otros métodos, enviar el formulario directamente
+                document.getElementById('form-pago').submit();
+            }
+        }
+
+        function cerrarModalPayPal() {
+            document.getElementById('paypal-modal').style.display = 'none';
+            document.getElementById('paypal-email').value = '';
+            document.getElementById('paypal-password').value = '';
+        }
+
+        function confirmarPagoPayPal() {
+            const email = document.getElementById('paypal-email').value;
+            const password = document.getElementById('paypal-password').value;
+
+            if (!email || !password) {
+                alert('⚠️ Por favor completa todos los campos de PayPal');
+                return;
+            }
+
+            // Simulación de procesamiento de pago
+            const modal = document.getElementById('paypal-modal');
+            modal.innerHTML = `
+                <div style="background: white; padding: 3rem; border-radius: 16px; max-width: 400px; width: 90%; text-align: center;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">⏳</div>
+                    <h2 style="color: #0070ba;">Procesando pago...</h2>
+                    <div style="margin: 2rem 0;">
+                        <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                            <div style="width: 0%; height: 100%; background: linear-gradient(90deg, #0070ba, #00c6ff); animation: progress 2s ease-in-out forwards;"></div>
+                        </div>
+                    </div>
+                    <p style="color: #666;">Verificando con PayPal...</p>
+                </div>
+            `;
+
+            setTimeout(() => {
+                modal.innerHTML = `
+                    <div style="background: white; padding: 3rem; border-radius: 16px; max-width: 400px; width: 90%; text-align: center;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                        <h2 style="color: #10b981;">¡Pago Exitoso!</h2>
+                        <p style="color: #666; margin: 1rem 0;">Tu pago con PayPal ha sido procesado correctamente.</p>
+                        <button onclick="finalizarPedido()" style="margin-top: 1.5rem; padding: 0.75rem 2rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Continuar</button>
+                    </div>
+                `;
+            }, 2500);
+        }
+
+        function finalizarPedido() {
+            // Enviar el formulario para crear el pedido
+            document.getElementById('form-pago').submit();
+        }
     </script>
+
+    <style>
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes progress {
+            from {
+                width: 0%;
+            }
+            to {
+                width: 100%;
+            }
+        }
+    </style>
 </body>
 </html>
 

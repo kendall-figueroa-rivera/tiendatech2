@@ -18,4 +18,5 @@ public interface UsuarioService {
     List<Usuario> listarTodos();
     Usuario confirmarEmail(String token);
     Usuario buscarPorTokenConfirmacion(String token);
+    void eliminar(Long id);
 }

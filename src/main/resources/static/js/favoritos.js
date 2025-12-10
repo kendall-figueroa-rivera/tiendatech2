@@ -1,17 +1,45 @@
-// Favoritos Mejorado
+// Favoritos Mejorado con soporte por usuario
 (function() {
-    // Cargar favoritos desde localStorage
+    // Obtener ID de usuario único (genera uno si no existe)
+    function obtenerUsuarioId() {
+        let userId = localStorage.getItem('tiendatech_user_id');
+        if (!userId) {
+            userId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('tiendatech_user_id', userId);
+        }
+        return userId;
+    }
+
+    // Cargar favoritos desde localStorage por usuario
     function cargarFavoritosDesdeStorage() {
-        const favoritosStorage = localStorage.getItem('favoritos');
+        const userId = obtenerUsuarioId();
+        const key = 'favoritos_' + userId;
+        const favoritosStorage = localStorage.getItem(key);
         if (favoritosStorage) {
             return JSON.parse(favoritosStorage);
         }
         return [];
     }
 
-    // Guardar favoritos en localStorage
+    // Guardar favoritos en localStorage por usuario
     function guardarFavoritosEnStorage(favoritos) {
-        localStorage.setItem('favoritos', JSON.stringify(favoritos));
+        const userId = obtenerUsuarioId();
+        const key = 'favoritos_' + userId;
+        localStorage.setItem(key, JSON.stringify(favoritos));
+    }
+
+    // Actualizar contador de favoritos en navbar
+    function actualizarContadorFavoritos() {
+        const favoritos = cargarFavoritosDesdeStorage();
+        const contador = document.getElementById('favoritos-count');
+        if (contador) {
+            contador.textContent = favoritos.length;
+            if (favoritos.length > 0) {
+                contador.style.display = 'inline-block';
+            } else {
+                contador.style.display = 'none';
+            }
+        }
     }
 
     // Agregar/Quitar de favoritos
@@ -39,6 +67,7 @@
 
                 guardarFavoritosEnStorage(favoritos);
                 actualizarIconosFavoritos();
+                actualizarContadorFavoritos();
                 return;
             }
             return response.text();
@@ -58,6 +87,7 @@
 
                 guardarFavoritosEnStorage(favoritos);
                 actualizarIconosFavoritos();
+                actualizarContadorFavoritos();
             }
         })
         .catch(error => {
@@ -77,6 +107,7 @@
 
             guardarFavoritosEnStorage(favoritos);
             actualizarIconosFavoritos();
+            actualizarContadorFavoritos();
         });
     }
 
@@ -133,6 +164,7 @@
     // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
         actualizarIconosFavoritos();
+        actualizarContadorFavoritos();
 
         document.querySelectorAll('.btn-favorito').forEach(button => {
             button.addEventListener('click', function(e) {
