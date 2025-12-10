@@ -19,7 +19,7 @@
             <a th:href="@{/favoritos}">Favoritos</a>
             <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
             <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
-            <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Admin</a>
+            <a th:href="@{/admin}" class="admin-button" sec:authorize="hasRole('ADMIN')">⚙️ Admin Panel</a>
             <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">Iniciar Sesión</a>
             <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
             <button id="theme-toggle" class="theme-toggle">🌙</button>
@@ -50,11 +50,14 @@
             <h3>Productos Destacados</h3>
             <div class="productos-grid">
                 <div th:each="producto : ${productos}" class="producto-card">
-                    <img th:src="${producto.imagenUrl}" th:alt="${producto.nombre}" onerror="this.src='/images/default-product.png'">
+                    <img th:src="${producto.imagenUrl}" th:alt="${producto.nombre}" onerror="this.src='/images/default-product.png'" loading="lazy">
                     <h4 th:text="${producto.nombre}"></h4>
                     <p class="precio" th:text="'$' + ${#numbers.formatDecimal(producto.precio, 1, 2)}"></p>
-                    <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn">Ver Detalles</a>
-                    <button class="btn-agregar-carrito" th:data-producto-id="${producto.id}">Agregar al Carrito</button>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn" style="flex: 1;">Ver Detalles</a>
+                        <button class="btn-favorito" th:data-producto-id="${producto.id}" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.5rem; transition: transform 0.2s;">🤍</button>
+                    </div>
+                    <button class="btn-agregar-carrito" th:data-producto-id="${producto.id}">🛒 Agregar al Carrito</button>
                 </div>
             </div>
         </section>
@@ -80,5 +83,6 @@
     <script th:src="@{/js/main.js}"></script>
     <script th:src="@{/js/theme.js}"></script>
     <script th:src="@{/js/carrito.js}"></script>
+    <script th:src="@{/js/favoritos.js}"></script>
 </body>
 </html>

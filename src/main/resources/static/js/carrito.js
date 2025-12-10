@@ -1,4 +1,4 @@
-// Carrito de Compras Dinámico (HU5)
+// Carrito de Compras Mejorado
 (function() {
     // Cargar carrito desde sessionStorage
     function cargarCarritoDesdeStorage() {
@@ -33,86 +33,110 @@
             },
             body: `productoId=${productoId}&cantidad=${cantidad}`
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status === 401) {
+                // Usuario no autenticado - guardar en sessionStorage
+                const carrito = cargarCarritoDesdeStorage();
+                const itemExistente = carrito.find(item => item.productoId === productoId);
+
+                if (itemExistente) {
+                    itemExistente.cantidad += cantidad;
+                } else {
+                    carrito.push({ productoId, cantidad });
+                }
+
+                guardarCarritoEnStorage(carrito);
+                actualizarContadorCarrito();
+
+                mostrarNotificacion('✅ Producto agregado al carrito. Inicia sesión para finalizar la compra.');
+                return;
+            }
+            return response.text();
+        })
         .then(data => {
-            // Actualizar carrito en sessionStorage
+            if (data) {
+                // Usuario autenticado - actualizar desde servidor
+                const carrito = cargarCarritoDesdeStorage();
+                const itemExistente = carrito.find(item => item.productoId === productoId);
+
+                if (itemExistente) {
+                    itemExistente.cantidad += cantidad;
+                } else {
+                    carrito.push({ productoId, cantidad });
+                }
+
+                guardarCarritoEnStorage(carrito);
+                actualizarContadorCarrito();
+
+                mostrarNotificacion('✅ Producto agregado al carrito');
+            }
+        })
+        .catch(error => {
+            console.error('Error al agregar al carrito:', error);
+
+            // Guardar localmente aunque haya error
             const carrito = cargarCarritoDesdeStorage();
             const itemExistente = carrito.find(item => item.productoId === productoId);
-            
+
             if (itemExistente) {
                 itemExistente.cantidad += cantidad;
             } else {
                 carrito.push({ productoId, cantidad });
             }
-            
+
             guardarCarritoEnStorage(carrito);
             actualizarContadorCarrito();
-            
-            // Mostrar notificación
-            mostrarNotificacion('Producto agregado al carrito');
-            
-            // Actualizar carrito desde el servidor
-            actualizarCarritoDesdeServidor();
-        })
-        .catch(error => {
-            console.error('Error al agregar al carrito:', error);
-            mostrarNotificacion('Error al agregar producto', 'error');
+
+            mostrarNotificacion('✅ Producto agregado al carrito localmente');
         });
     }
 
-    // Actualizar carrito desde el servidor
-    function actualizarCarritoDesdeServidor() {
-        fetch('/api/carrito')
-            .then(response => response.json())
-            .then(data => {
-                if (data.items) {
-                    const carrito = data.items.map(item => ({
-                        productoId: item.producto.id,
-                        cantidad: item.cantidad
-                    }));
-                    guardarCarritoEnStorage(carrito);
-                    actualizarContadorCarrito();
-                }
-            })
-            .catch(error => console.error('Error al actualizar carrito:', error));
-    }
-
-    // Mostrar notificación
+    // Mostrar notificación mejorada
     function mostrarNotificacion(mensaje, tipo = 'success') {
+        // Remover notificaciones existentes
+        const existentes = document.querySelectorAll('.notificacion-toast');
+        existentes.forEach(n => n.remove());
+
         const notificacion = document.createElement('div');
-        notificacion.className = `notificacion ${tipo}`;
+        notificacion.className = 'notificacion-toast';
         notificacion.textContent = mensaje;
         notificacion.style.cssText = `
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem;
-            background-color: ${tipo === 'success' ? '#28a745' : '#dc3545'};
+            top: 100px;
+            right: 30px;
+            padding: 1.25rem 1.75rem;
+            background: ${tipo === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)'};
             color: white;
-            border-radius: 5px;
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
+            border-radius: 12px;
+            z-index: 10000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transform: translateX(400px);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         `;
         document.body.appendChild(notificacion);
-        
+
+        // Animar entrada
         setTimeout(() => {
-            notificacion.style.animation = 'slideOut 0.3s ease';
+            notificacion.style.transform = 'translateX(0)';
+        }, 10);
+
+        // Animar salida y remover
+        setTimeout(() => {
+            notificacion.style.transform = 'translateX(400px)';
             setTimeout(() => notificacion.remove(), 300);
-        }, 3000);
+        }, 3500);
     }
 
     // Event listeners para botones de agregar al carrito
     document.addEventListener('DOMContentLoaded', function() {
         actualizarContadorCarrito();
-        
-        // Actualizar carrito desde servidor si el usuario está autenticado
-        if (document.querySelector('[sec\\:authorize="isAuthenticated()"]')) {
-            actualizarCarritoDesdeServidor();
-        }
 
         // Agregar event listeners a todos los botones de agregar al carrito
         document.querySelectorAll('.btn-agregar-carrito').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
                 const productoId = this.getAttribute('data-producto-id');
                 if (productoId) {
                     agregarAlCarrito(parseInt(productoId), 1);
@@ -121,4 +145,3 @@
         });
     });
 })();
-

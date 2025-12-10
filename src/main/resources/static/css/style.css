@@ -177,6 +177,26 @@ body {
     width: 80%;
 }
 
+/* Botón especial para Admin */
+.navbar nav a.admin-button {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    transition: all var(--transition-fast);
+}
+
+.navbar nav a.admin-button:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.navbar nav a.admin-button::after {
+    display: none;
+}
+
 /* ======== BOTÓN DE TEMA ======== */
 .theme-toggle {
     background: rgba(255, 255, 255, 0.15);
@@ -399,10 +419,16 @@ body {
     border-radius: var(--radius-lg);
     margin-bottom: var(--spacing-md);
     transition: all var(--transition-slow);
+    /* Eliminar parpadeo completamente */
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    will-change: transform;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    background-color: var(--gray-100);
+    opacity: 1 !important;
 }
 
 .producto-card:hover img {

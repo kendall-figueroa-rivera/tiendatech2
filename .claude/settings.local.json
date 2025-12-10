@@ -4,7 +4,8 @@
       "Bash(\"/c/Program Files/Apache NetBeans/java/maven/bin/mvn.cmd\" spring-boot:run)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)"
     ],
     "deny": [],
     "ask": []
