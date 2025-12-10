@@ -25,11 +25,11 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo [1/3] Limpiando proyecto...
-call mvn clean
+call mvn clean -q
 
 echo.
 echo [2/3] Compilando proyecto...
-call mvn install -DskipTests
+call mvn package -DskipTests -q
 
 if %ERRORLEVEL% NEQ 0 (
     echo.
@@ -56,7 +56,34 @@ echo   Admin: admin@tiendatech.com / admin123
 echo   Usuario: juan@example.com / user123
 echo ========================================
 echo.
-echo Presiona Ctrl+C para detener la aplicacion
+echo Abriendo navegador en 5 segundos...
+timeout /t 5 /nobreak >nul
+
+REM Abrir navegador automaticamente
+start http://localhost:8080
+
+echo.
+echo Iniciando aplicacion...
 echo.
 
-call mvn spring-boot:run
+REM Iniciar la aplicacion en una nueva ventana
+start "TiendaTech2 - Servidor" cmd /k "java -jar target\tiendatech2-0.0.1-SNAPSHOT.jar"
+
+REM Esperar a que la aplicacion inicie
+echo Esperando a que la aplicacion inicie (15 segundos)...
+timeout /t 15 /nobreak >nul
+
+REM Abrir navegador automaticamente
+echo Abriendo navegador...
+start http://localhost:8080
+
+echo.
+echo ========================================
+echo Aplicacion iniciada correctamente!
+echo Navegador abierto en http://localhost:8080
+echo ========================================
+echo.
+echo La aplicacion se esta ejecutando en otra ventana.
+echo Para detener la aplicacion, cierra la ventana del servidor.
+echo.
+pause

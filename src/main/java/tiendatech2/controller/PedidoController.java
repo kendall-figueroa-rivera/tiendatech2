@@ -116,5 +116,35 @@ public class PedidoController {
         model.addAttribute("pedido", pedido);
         return "pedidos/confirmacion";
     }
+
+    @GetMapping("/{id}/factura")
+    public void descargarFactura(@PathVariable Long id, Authentication authentication, 
+                                 jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        Pedido pedido = pedidoService.buscarPorId(id);
+        if (pedido == null) {
+            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        if (authentication != null) {
+            Usuario usuario = usuarioService.buscarPorCorreo(authentication.getName());
+            if (usuario != null && !pedido.getUsuario().getId().equals(usuario.getId()) && 
+                !usuario.getRol().getNombre().equals("ROLE_ADMIN")) {
+                response.sendError(jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+        }
+
+        // Generar PDF (por ahora HTML simple)
+        java.io.ByteArrayOutputStream baos = pdfService.generarFactura(pedido);
+        
+        response.setContentType("text/html; charset=UTF-8");
+        response.setHeader("Content-Disposition", "inline; filename=factura_" + pedido.getId() + ".html");
+        response.getOutputStream().write(baos.toByteArray());
+        response.getOutputStream().flush();
+    }
+
+    @Autowired
+    private tiendatech2.service.PdfService pdfService;
 }
 
