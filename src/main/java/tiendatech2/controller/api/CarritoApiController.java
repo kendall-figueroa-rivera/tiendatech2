@@ -25,13 +25,23 @@ public class CarritoApiController {
 
     @GetMapping
     public ResponseEntity<?> obtenerCarrito(Authentication authentication) {
+        Map<String, Object> respuesta = new HashMap<>();
+        
         if (authentication == null) {
-            return ResponseEntity.status(401).body("No autenticado");
+            respuesta.put("items", java.util.Collections.emptyList());
+            respuesta.put("subtotal", BigDecimal.ZERO);
+            respuesta.put("impuestos", BigDecimal.ZERO);
+            respuesta.put("total", BigDecimal.ZERO);
+            return ResponseEntity.ok(respuesta);
         }
 
         Usuario usuario = usuarioService.buscarPorCorreo(authentication.getName());
         if (usuario == null) {
-            return ResponseEntity.status(401).body("Usuario no encontrado");
+            respuesta.put("items", java.util.Collections.emptyList());
+            respuesta.put("subtotal", BigDecimal.ZERO);
+            respuesta.put("impuestos", BigDecimal.ZERO);
+            respuesta.put("total", BigDecimal.ZERO);
+            return ResponseEntity.ok(respuesta);
         }
 
         List<Carrito> items = carritoService.obtenerCarrito(usuario.getId());
@@ -41,7 +51,6 @@ public class CarritoApiController {
         BigDecimal impuestos = subtotal.multiply(new BigDecimal("0.13"));
         BigDecimal total = subtotal.add(impuestos);
 
-        Map<String, Object> respuesta = new HashMap<>();
         respuesta.put("items", items);
         respuesta.put("subtotal", subtotal);
         respuesta.put("impuestos", impuestos);

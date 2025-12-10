@@ -1,96 +1,32 @@
-<<<<<<< HEAD
-// Carrito de Compras Mejorado con soporte por usuario
-=======
-<<<<<<< HEAD
-document.addEventListener('DOMContentLoaded', () => {
-
-    const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-    const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
-
-    function toast(msg, ok = true) {
-        let t = document.getElementById('toast-msg');
-        if (!t) {
-            t = document.createElement('div');
-            t.id = 'toast-msg';
-            t.style.position = 'fixed';
-            t.style.top = '20px';
-            t.style.right = '20px';
-            t.style.zIndex = '99999';
-            t.style.padding = '12px 18px';
-            t.style.borderRadius = '8px';
-            t.style.color = 'white';
-            t.style.fontSize = '15px';
-            document.body.appendChild(t);
-=======
-// Carrito de Compras Mejorado
->>>>>>> 03a7f8d1639a3f41ff369e45cf286911e1b5202d
+// Carrito de Compras - Integración con Base de Datos
 (function() {
-    // Obtener ID de usuario único (mismo que favoritos)
-    function obtenerUsuarioId() {
-        let userId = localStorage.getItem('tiendatech_user_id');
-        if (!userId) {
-            userId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('tiendatech_user_id', userId);
-        }
-        return userId;
+    // Actualizar contador de carrito
+    function actualizarContadorCarrito() {
+        fetch('/api/carrito')
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return { items: [] };
+            })
+            .then(data => {
+                const contador = document.getElementById('carrito-count');
+                if (contador) {
+                    const totalItems = data.items ? data.items.reduce((sum, item) => sum + item.cantidad, 0) : 0;
+                    contador.textContent = totalItems;
+                    if (totalItems > 0) {
+                        contador.style.display = 'inline-block';
+                    } else {
+                        contador.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error al actualizar contador de carrito:', error);
+            });
     }
 
-    // Cargar carrito desde localStorage por usuario
-    function cargarCarritoDesdeStorage() {
-        const userId = obtenerUsuarioId();
-        const key = 'carrito_' + userId;
-        const carritoStorage = localStorage.getItem(key);
-        if (carritoStorage) {
-            return JSON.parse(carritoStorage);
->>>>>>> 922fd2ca23edab38af23357108a30a2728fcfc24
-        }
-        t.style.background = ok ? '#28a745' : '#dc3545';
-        t.textContent = msg;
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 2000);
-    }
-
-<<<<<<< HEAD
-    // Guardar carrito en localStorage por usuario
-    function guardarCarritoEnStorage(carrito) {
-        const userId = obtenerUsuarioId();
-        const key = 'carrito_' + userId;
-        localStorage.setItem(key, JSON.stringify(carrito));
-    }
-=======
-    document.querySelectorAll('.btn-add-cart').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();           // ✔ evita parpadeo
-            e.stopPropagation();          // ✔ evita submit de algún form padre
->>>>>>> 03a7f8d1639a3f41ff369e45cf286911e1b5202d
-
-            const id = btn.getAttribute('data-id');
-
-<<<<<<< HEAD
-            try {
-                const res = await fetch('/api/carrito/agregar', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        ...(token ? { [headerName]: token } : {})
-                    },
-                    body: new URLSearchParams({ productoId: id, cantidad: 1 })
-                });
-
-                if (!res.ok) throw new Error('Error HTTP ' + res.status);
-
-                const json = await res.json();
-                toast(json.msg || 'Agregado al carrito', json.ok);
-
-            } catch (err) {
-                console.error(err);
-                toast('No se pudo agregar', false);
-            }
-        });
-    });
-});
-=======
-    // Agregar producto al carrito (AJAX)
+    // Agregar producto al carrito
     function agregarAlCarrito(productoId, cantidad = 1) {
         fetch('/carrito/agregar', {
             method: 'POST',
@@ -101,65 +37,25 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(response => {
             if (response.status === 401) {
-                // Usuario no autenticado - guardar en sessionStorage
-                const carrito = cargarCarritoDesdeStorage();
-                const itemExistente = carrito.find(item => item.productoId === productoId);
-
-                if (itemExistente) {
-                    itemExistente.cantidad += cantidad;
-                } else {
-                    carrito.push({ productoId, cantidad });
-                }
-
-                guardarCarritoEnStorage(carrito);
-                actualizarContadorCarrito();
-
-                mostrarNotificacion('✅ Producto agregado al carrito. Inicia sesión para finalizar la compra.');
+                mostrarNotificacion('⚠️ Debes iniciar sesión para agregar productos al carrito', 'error');
                 return;
             }
             return response.text();
         })
         .then(data => {
             if (data) {
-                // Usuario autenticado - actualizar desde servidor
-                const carrito = cargarCarritoDesdeStorage();
-                const itemExistente = carrito.find(item => item.productoId === productoId);
-
-                if (itemExistente) {
-                    itemExistente.cantidad += cantidad;
-                } else {
-                    carrito.push({ productoId, cantidad });
-                }
-
-                guardarCarritoEnStorage(carrito);
-                actualizarContadorCarrito();
-
                 mostrarNotificacion('✅ Producto agregado al carrito');
+                actualizarContadorCarrito();
             }
         })
         .catch(error => {
             console.error('Error al agregar al carrito:', error);
-
-            // Guardar localmente aunque haya error
-            const carrito = cargarCarritoDesdeStorage();
-            const itemExistente = carrito.find(item => item.productoId === productoId);
-
-            if (itemExistente) {
-                itemExistente.cantidad += cantidad;
-            } else {
-                carrito.push({ productoId, cantidad });
-            }
-
-            guardarCarritoEnStorage(carrito);
-            actualizarContadorCarrito();
-
-            mostrarNotificacion('✅ Producto agregado al carrito localmente');
+            mostrarNotificacion('❌ Error al agregar producto al carrito', 'error');
         });
     }
 
-    // Mostrar notificación mejorada
+    // Mostrar notificación
     function mostrarNotificacion(mensaje, tipo = 'success') {
-        // Remover notificaciones existentes
         const existentes = document.querySelectorAll('.notificacion-toast');
         existentes.forEach(n => n.remove());
 
@@ -183,12 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.body.appendChild(notificacion);
 
-        // Animar entrada
         setTimeout(() => {
             notificacion.style.transform = 'translateX(0)';
         }, 10);
 
-        // Animar salida y remover
         setTimeout(() => {
             notificacion.style.transform = 'translateX(400px)';
             setTimeout(() => notificacion.remove(), 300);
@@ -200,10 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarContadorCarrito();
 
         // Agregar event listeners a todos los botones de agregar al carrito
-        document.querySelectorAll('.btn-agregar-carrito').forEach(button => {
+        document.querySelectorAll('.btn-agregar-carrito, .btn-add-cart').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
-                const productoId = this.getAttribute('data-producto-id');
+                e.stopPropagation();
+                const productoId = this.getAttribute('data-producto-id') || this.getAttribute('data-id');
                 if (productoId) {
                     agregarAlCarrito(parseInt(productoId), 1);
                 }
@@ -211,4 +106,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 })();
->>>>>>> 922fd2ca23edab38af23357108a30a2728fcfc24

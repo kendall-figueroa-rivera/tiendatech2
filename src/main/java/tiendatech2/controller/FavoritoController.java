@@ -8,9 +8,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import tiendatech2.model.Favorito;
 import tiendatech2.model.Usuario;
+import tiendatech2.repository.FavoritoRepository;
 import tiendatech2.service.FavoritoService;
 import tiendatech2.service.UsuarioService;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/favoritos")
@@ -21,6 +23,9 @@ public class FavoritoController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private FavoritoRepository favoritoRepository;
 
     @GetMapping
     public String verFavoritos(Authentication authentication, Model model) {
@@ -40,6 +45,36 @@ public class FavoritoController {
         model.addAttribute("favoritos", favoritos);
 
         return "favoritos/listar";
+    }
+
+    @PostMapping("/toggle")
+    @ResponseBody
+    public ResponseEntity<?> toggleFavorito(@RequestParam Long productoId, Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Debe iniciar sesión");
+        }
+
+        Usuario usuario = usuarioService.buscarPorCorreo(authentication.getName());
+        if (usuario == null) {
+            return ResponseEntity.status(401).body("Usuario no encontrado");
+        }
+
+        // Verificar si ya es favorito
+        Optional<Favorito> favoritoOpt = favoritoRepository.findByUsuarioIdAndProductoId(usuario.getId(), productoId);
+        
+        if (favoritoOpt.isPresent()) {
+            // Eliminar favorito
+            favoritoService.eliminarFavorito(favoritoOpt.get().getId());
+            return ResponseEntity.ok().body("Favorito eliminado");
+        } else {
+            // Agregar favorito
+            Favorito favorito = favoritoService.agregarFavorito(usuario.getId(), productoId);
+            if (favorito != null) {
+                return ResponseEntity.ok().body("Producto agregado a favoritos");
+            }
+        }
+        
+        return ResponseEntity.badRequest().body("Error al procesar favorito");
     }
 
     @PostMapping("/agregar")
