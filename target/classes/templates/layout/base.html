@@ -5,17 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title} ?: 'TiendaTech2'">TiendaTech2</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
 </head>
 
 <body>
-<header>
-    <h1>TiendaTech2</h1>
-    <nav>
-        <a th:href="@{/}">Inicio</a>
-        <a th:href="@{/productos}">Productos</a>
-        <a th:href="@{/categorias}">Categorías</a>
-        <a th:href="@{/login}">Iniciar sesión</a>
-    </nav>
+    <header>
+        <h1>TiendaTech2</h1>
+        <nav>
+            <a th:href="@{/}">Inicio</a>
+            <a th:href="@{/productos}">Productos</a>
+            <a th:href="@{/categorias}">Categorías</a>
+            <a th:href="@{/login}">Iniciar sesión</a>
+        </nav>
+</body>
+<script src="/js/main.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/carrito.js"></script>
+</html>
 </header>
 
 <main th:fragment="content">
