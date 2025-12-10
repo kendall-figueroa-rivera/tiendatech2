@@ -1,45 +1,60 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión | TiendaTech2</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h2>Iniciar Sesión</h2>
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛒</h1>
+            <h2 style="margin: 0;">Iniciar Sesión</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Bienvenido de vuelta a TiendaTech2</p>
+        </div>
 
         <!-- Mensaje si el usuario acaba de registrarse -->
-        <div th:if="${param.registrado}">
-            <p class="success">✅ Registro exitoso. Ahora puedes iniciar sesión.</p>
+        <div th:if="${param.registrado}" class="success">
+            ✅ Registro exitoso. Ahora puedes iniciar sesión.
         </div>
 
         <!-- Mensaje si hubo error de login -->
-        <div th:if="${param.error}">
-            <p class="error">❌ Credenciales inválidas, inténtalo nuevamente.</p>
+        <div th:if="${param.error}" class="error">
+            ❌ Credenciales inválidas, inténtalo nuevamente.
         </div>
 
         <!-- Mensaje si se cerró sesión -->
-        <div th:if="${param.logout}">
-            <p class="info">🔒 Has cerrado sesión correctamente.</p>
+        <div th:if="${param.logout}" class="info">
+            🔒 Has cerrado sesión correctamente.
         </div>
 
         <form th:action="@{/login}" method="post">
             <div class="form-group">
-                <label for="username">Correo:</label>
-                <input type="text" id="username" name="username" placeholder="Tu correo" required>
+                <label for="username">📧 Correo electrónico</label>
+                <input type="email" id="username" name="username" placeholder="tu@email.com" required autofocus>
             </div>
 
             <div class="form-group">
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" placeholder="Tu contraseña" required>
+                <label for="password">🔒 Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
             </div>
 
             <button type="submit">Iniciar Sesión</button>
         </form>
 
-        <p>¿No tienes una cuenta? <a th:href="@{/auth/registro}">Regístrate aquí</a></p>
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+            <p style="margin: 0;">¿No tienes una cuenta? <a th:href="@{/auth/registro}">Regístrate aquí</a></p>
+        </div>
+
+        <div style="text-align: center; margin-top: 1rem;">
+            <a th:href="@{/}" style="font-size: 0.9rem; color: var(--text-muted);">← Volver al inicio</a>
+        </div>
     </div>
+
+    <script th:src="@{/js/theme.js}"></script>
 </body>
 </html>

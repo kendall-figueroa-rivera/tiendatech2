@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TiendaTech2 | Inicio</title>
+    <title>TiendaTech2 | La mejor tienda de tecnología</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="navbar">
@@ -16,7 +19,7 @@
             <a th:href="@{/favoritos}">Favoritos</a>
             <a th:href="@{/pedidos}" sec:authorize="isAuthenticated()">Mis Pedidos</a>
             <a th:href="@{/usuario/perfil}" sec:authorize="isAuthenticated()">Mi Perfil</a>
-            <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Admin</a>
+            <a th:href="@{/admin}" class="admin-button" sec:authorize="hasRole('ADMIN')">⚙️ Admin Panel</a>
             <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()">Iniciar Sesión</a>
             <a th:href="@{/logout}" sec:authorize="isAuthenticated()">Cerrar sesión</a>
             <button id="theme-toggle" class="theme-toggle">🌙</button>
@@ -27,13 +30,17 @@
         <!-- Mensaje de bienvenida personalizado (HU21) -->
         <div th:if="${mensajeBienvenida}" class="bienvenida">
             <h2 th:text="${mensajeBienvenida}">¡Bienvenido!</h2>
+            <p style="margin-top: 1rem; font-size: 1.1rem; opacity: 0.95;">Descubre los mejores productos de tecnología al mejor precio</p>
         </div>
-        <h2 th:unless="${mensajeBienvenida}">Bienvenido a TiendaTech2</h2>
+        <div th:unless="${mensajeBienvenida}" class="bienvenida">
+            <h2>Bienvenido a TiendaTech2 💻</h2>
+            <p style="margin-top: 1rem; font-size: 1.1rem; opacity: 0.95;">Tu tienda de tecnología de confianza</p>
+        </div>
 
         <!-- Búsqueda directa (HU13) -->
         <section class="busqueda">
             <form action="/productos" method="get">
-                <input type="text" name="busqueda" placeholder="Buscar productos..." id="busqueda-input">
+                <input type="text" name="busqueda" placeholder="🔍 Buscar productos, marcas, categorías..." id="busqueda-input">
                 <button type="submit">Buscar</button>
             </form>
         </section>
@@ -43,11 +50,14 @@
             <h3>Productos Destacados</h3>
             <div class="productos-grid">
                 <div th:each="producto : ${productos}" class="producto-card">
-                    <img th:src="${producto.imagenUrl}" th:alt="${producto.nombre}" onerror="this.src='/images/default-product.png'">
+                    <img th:src="${producto.imagenUrl}" th:alt="${producto.nombre}" onerror="this.src='/images/default-product.png'" loading="lazy">
                     <h4 th:text="${producto.nombre}"></h4>
                     <p class="precio" th:text="'$' + ${#numbers.formatDecimal(producto.precio, 1, 2)}"></p>
-                    <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn">Ver Detalles</a>
-                    <button class="btn-agregar-carrito" th:data-producto-id="${producto.id}">Agregar al Carrito</button>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn" style="flex: 1;">Ver Detalles</a>
+                        <button class="btn-favorito" th:data-producto-id="${producto.id}" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.5rem; transition: transform 0.2s;">🤍</button>
+                    </div>
+                    <button class="btn-agregar-carrito" th:data-producto-id="${producto.id}">🛒 Agregar al Carrito</button>
                 </div>
             </div>
         </section>
@@ -73,5 +83,6 @@
     <script th:src="@{/js/main.js}"></script>
     <script th:src="@{/js/theme.js}"></script>
     <script th:src="@{/js/carrito.js}"></script>
+    <script th:src="@{/js/favoritos.js}"></script>
 </body>
 </html>
