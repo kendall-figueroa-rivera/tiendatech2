@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TiendaTech2 | Inicio</title>
+    <title>TiendaTech2 | La mejor tienda de tecnología</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="navbar">
@@ -27,13 +30,17 @@
         <!-- Mensaje de bienvenida personalizado (HU21) -->
         <div th:if="${mensajeBienvenida}" class="bienvenida">
             <h2 th:text="${mensajeBienvenida}">¡Bienvenido!</h2>
+            <p style="margin-top: 1rem; font-size: 1.1rem; opacity: 0.95;">Descubre los mejores productos de tecnología al mejor precio</p>
         </div>
-        <h2 th:unless="${mensajeBienvenida}">Bienvenido a TiendaTech2</h2>
+        <div th:unless="${mensajeBienvenida}" class="bienvenida">
+            <h2>Bienvenido a TiendaTech2 💻</h2>
+            <p style="margin-top: 1rem; font-size: 1.1rem; opacity: 0.95;">Tu tienda de tecnología de confianza</p>
+        </div>
 
         <!-- Búsqueda directa (HU13) -->
         <section class="busqueda">
             <form action="/productos" method="get">
-                <input type="text" name="busqueda" placeholder="Buscar productos..." id="busqueda-input">
+                <input type="text" name="busqueda" placeholder="🔍 Buscar productos, marcas, categorías..." id="busqueda-input">
                 <button type="submit">Buscar</button>
             </form>
         </section>

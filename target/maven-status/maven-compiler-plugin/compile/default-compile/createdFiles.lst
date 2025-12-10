@@ -9,6 +9,7 @@ tiendatech2\repository\RolRepository.class
 tiendatech2\repository\UsuarioRepository.class
 tiendatech2\model\Mensaje.class
 tiendatech2\model\Usuario.class
+tiendatech2\controller\HomeController.class
 tiendatech2\model\Rol.class
 tiendatech2\controller\PedidoController.class
 tiendatech2\model\Chat.class

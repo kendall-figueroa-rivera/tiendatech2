@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mvn clean install:*)"
+      "Bash(\"/c/Program Files/Apache NetBeans/java/maven/bin/mvn.cmd\" spring-boot:run)"
     ],
     "deny": [],
     "ask": []
