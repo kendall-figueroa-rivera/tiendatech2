@@ -13,7 +13,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @SessionAttributes("carrito")
 public class CarritoController {
 
-        BigDecimal subtotal = items.stream()
     // mapa en sesión: productId -> cantidad
     @ModelAttribute("carrito")
     public Map<Long, Integer> carrito() {
